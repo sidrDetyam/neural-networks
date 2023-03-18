@@ -10,7 +10,7 @@
 class ILayer {
 public:
 
-    virtual Batch forward(const Batch& input) = 0;
+    virtual const Batch& forward(const Batch& input) = 0;
 
     virtual Batch backward(const Batch& output) = 0;
 

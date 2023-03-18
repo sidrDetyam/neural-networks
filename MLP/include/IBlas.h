@@ -7,7 +7,8 @@
 
 class IBlas{
 public:
-    virtual void dgemm(const double* a, const double *b, double *c, int m, int n, int k) = 0;
+    virtual void dgemm(const double* a, const double *b, bool isATransposed, bool isBTransposed,
+                       double *c, int m, int n, int k, double beta) = 0;
 
     virtual ~IBlas() = default;
 };

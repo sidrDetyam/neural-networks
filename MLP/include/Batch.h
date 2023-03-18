@@ -7,34 +7,56 @@
 
 #include <memory>
 #include <cstring>
+#include <cassert>
 
-class Batch {
+class Batch final{
 public:
 
     Batch(size_t b_size, size_t feature_size) :
             b_size_(b_size),
             feature_size_(feature_size),
-            ptr_(new double[b_size * feature_size]) {
+            ptr_(b_size == 0 && feature_size == 0? nullptr : new double[b_size * feature_size]) {
+
     }
 
     Batch(const Batch &batch) :
             b_size_(batch.b_size_),
             feature_size_(batch.feature_size_) {
 
+        assert(b_size_ >= 0 && feature_size_ >= 0);
+
         auto *tmp = new double[b_size_ * feature_size_];
-        memcpy(tmp, batch[0], b_size_ * feature_size_);
+        memcpy(tmp, batch[0], b_size_ * feature_size_ * sizeof(double));
         ptr_ = std::unique_ptr<double>(tmp);
+    }
+
+    Batch& operator =(const Batch &batch){
+        if(this == &batch){
+            return *this;
+        }
+
+        b_size_ = batch.b_size_;
+        feature_size_ = batch.feature_size_;
+        memcpy(ptr_.get(), batch[0], b_size_ * feature_size_ * sizeof(double));
+        return *this;
+    }
+
+    Batch& operator =(Batch &&batch) noexcept {
+        b_size_ = batch.b_size_;
+        feature_size_ = batch.feature_size_;
+        batch.b_size_ = 0;
+        batch.feature_size_ = 0;
+        ptr_ = std::move(batch.ptr_);
+        return *this;
     }
 
     Batch(Batch &&batch)  noexcept :
             b_size_(batch.b_size_),
             feature_size_(batch.feature_size_),
-            ptr_(batch.ptr_.get()){
-
-        batch.ptr_.reset(nullptr);
+            ptr_(std::move(batch.ptr_)){
+        batch.b_size_ = 0;
+        batch.feature_size_ = 0;
     }
-
-    virtual ~Batch() = default;
 
     double *operator[](size_t i) {
         return &ptr_.get()[i * feature_size_];
@@ -54,8 +76,10 @@ public:
 
 private:
     std::unique_ptr<double> ptr_;
-    const size_t b_size_;
-    const size_t feature_size_;
+    size_t b_size_;
+    size_t feature_size_;
 };
+
+using Matrix = Batch;
 
 #endif //MLP_BATCH_H
