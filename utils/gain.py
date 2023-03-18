@@ -1,7 +1,6 @@
-import numpy as np
 import pandas as pd
 import math
-from typing import List, Tuple
+from typing import List
 
 
 def slice_sterges(df: pd.DataFrame, col: str) -> List[pd.DataFrame]:
@@ -19,6 +18,7 @@ def slice_sterges(df: pd.DataFrame, col: str) -> List[pd.DataFrame]:
         bins.append(df.loc[(df[col] >= mn + width * i)
                            & (df[col] < mn + width * (i + 1))])
 
+    #косяк
     return bins
 
 
@@ -37,6 +37,7 @@ def entropy(df: pd.DataFrame, target: str) -> float:
     return -s
 
 
+#категории
 def entropy_a(df: pd.DataFrame, col: str, target: str) -> float:
     bins = slice_sterges(df, col)
     cnt = sum(map(lambda x: x.shape[0], bins))
@@ -60,4 +61,3 @@ def gain(df: pd.DataFrame, col: str, target: str) -> float:
 
 def gr(df: pd.DataFrame, attr_name: str, target_name: str) -> float:
     return gain(df, attr_name, target_name) / split_info(df, attr_name)
-

@@ -1,0 +1,19 @@
+#include <iostream>
+#include <cblas.h>
+
+int main() {
+    // Создаем матрицу 3х3 в виде одномерного массива
+    double matrix[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    // Создаем вектор длиной 3
+    double vector[3] = {1, 2, 3};
+    // Создаем выходной вектор длиной 3
+    double result[3] = {0, 0, 0};
+
+    // Выполняем умножение матрицы на вектор
+    cblas_dgemv(CblasRowMajor, CblasNoTrans, 3, 3, 1.0, matrix, 3, vector, 1, 0.0, result, 1);
+
+    // Выводим результат
+    std::cout << "Результат: " << result[0] << ", " << result[1] << ", " << result[2] << std::endl;
+
+    return 0;
+}
