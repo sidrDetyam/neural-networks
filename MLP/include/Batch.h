@@ -19,6 +19,19 @@ public:
 
     }
 
+    Batch(std::initializer_list<std::initializer_list<double>> b): Batch(b.size(), b.begin()->size()){
+
+        auto iti = b.begin();
+        for(size_t i=0; i<b_size_; ++i){
+            auto itj = iti->begin();
+            for(size_t j=0; j<feature_size_; ++j){
+                ptr_.get()[i*feature_size_ + j] = *itj;
+                ++itj;
+            }
+            ++iti;
+        }
+    }
+
     Batch(const Batch &batch) :
             b_size_(batch.b_size_),
             feature_size_(batch.feature_size_) {
@@ -33,6 +46,10 @@ public:
     Batch& operator =(const Batch &batch){
         if(this == &batch){
             return *this;
+        }
+
+        if(b_size_ != batch.b_size_ || feature_size_ != batch.feature_size_){
+            ptr_.reset(new double[batch.b_size_ * batch.feature_size_]);
         }
 
         b_size_ = batch.b_size_;

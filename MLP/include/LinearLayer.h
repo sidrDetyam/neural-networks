@@ -36,6 +36,7 @@ private:
     Matrix bias_;
     Matrix b_grad_;
     Batch input_;
+    Batch output_;
 };
 
 #endif //MLP_LINEARLAYER_H

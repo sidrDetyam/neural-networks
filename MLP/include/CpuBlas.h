@@ -13,6 +13,8 @@ class CpuBlas: public IBlas{
 public:
     void dgemm(const double *a, const double *b, bool isATransposed, bool isBTransposed, double *c, int m, int n, int k, double beta) override;
 
+    void col_sum(const double *a, double *res, int m, int n, double beta) override;
+
     static std::unique_ptr<CpuBlas> of();
 };
 

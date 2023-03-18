@@ -10,6 +10,8 @@ public:
     virtual void dgemm(const double* a, const double *b, bool isATransposed, bool isBTransposed,
                        double *c, int m, int n, int k, double beta) = 0;
 
+    virtual void col_sum(const double* a, double* res, int m, int n, double beta) = 0;
+
     virtual ~IBlas() = default;
 };
 
