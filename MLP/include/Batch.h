@@ -88,7 +88,7 @@ public:
     }
 
     [[nodiscard]] size_t getFeatureSize() const {
-        return b_size_;
+        return feature_size_;
     }
 
 private:

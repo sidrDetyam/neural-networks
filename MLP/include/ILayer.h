@@ -6,13 +6,16 @@
 #define MLP_ILAYER_H
 
 #include "Batch.h"
+#include <vector>
 
 class ILayer {
 public:
 
-    virtual const Batch& forward(const Batch& input) = 0;
+    virtual Batch forward(Batch&& input) = 0;
 
     virtual Batch backward(const Batch& output) = 0;
+
+    virtual std::vector<double>& getParametersGradient() = 0;
 
     virtual ~ILayer() = default;
 };

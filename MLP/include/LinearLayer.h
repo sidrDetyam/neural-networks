@@ -10,33 +10,33 @@
 #include <memory>
 #include <vector>
 
-class LinearLayer: public ILayer{
+class LinearLayer : public ILayer {
 public:
-    explicit LinearLayer(size_t input_size, size_t output_size, std::unique_ptr<IBlas> &&blas);
+    //explicit LinearLayer(size_t input_size, size_t output_size, std::unique_ptr<IBlas> &&blas);
 
-    const Batch& forward(const Batch &input) override;
+    explicit LinearLayer(size_t input_size, size_t output_size,
+                         std::vector<double> weights,
+                         std::vector<double> bias,
+                         std::unique_ptr<IBlas> &&blas);
+
+    Batch forward(Batch &&input) override;
 
     Batch backward(const Batch &output) override;
 
-    Matrix& getWeights(){
-        return weights_;
-    }
-
-    Matrix& getBias(){
-        return bias_;
-    }
+    std::vector<double> &getParametersGradient() override;
 
 private:
+    double *getBPart();
+
+    double *getGradBPart();
+
     std::unique_ptr<IBlas> blas_;
     const size_t input_size_;
     const size_t output_size_;
 
-    Matrix weights_;
-    Matrix w_grad_;
-    Matrix bias_;
-    Matrix b_grad_;
+    std::vector<double> parameters_;
+    std::vector<double> grad_;
     Batch input_;
-    Batch output_;
 };
 
 #endif //MLP_LINEARLAYER_H
