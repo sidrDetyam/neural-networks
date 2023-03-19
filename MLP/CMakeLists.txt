@@ -6,5 +6,12 @@ set(CMAKE_CXX_STANDARD 23)
 find_package(BLAS REQUIRED)
 include_directories(${BLAS_INCLUDE_DIRS})
 
-add_executable(MLP main.cpp include/ILayer.h include/Batch.h src/Batch.cpp src/LinearLayer.cpp include/LinearLayer.h include/IBlas.h include/CpuBlas.h src/CpuBlas.cpp include/Utils.h)
-target_link_libraries(MLP ${BLAS_LIBRARIES})
+add_subdirectory(lib/googletest)
+include_directories(lib/googletest/googletest/include)
+include_directories(lib/googletest/googlemock/include)
+
+add_executable(MLP include/ILayer.h include/Batch.h src/Batch.cpp src/LinearLayer.cpp include/LinearLayer.h include/IBlas.h include/CpuBlas.h src/CpuBlas.cpp include/Utils.h tests/LinearLayerTests.cpp
+        main.cpp
+        )
+target_link_libraries(MLP ${BLAS_LIBRARIES} gtest gtest_main)
+#target_link_libraries(MLP

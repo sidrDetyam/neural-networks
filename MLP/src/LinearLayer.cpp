@@ -9,6 +9,25 @@
 #include "../include/Utils.h"
 
 
+LinearLayer::LinearLayer(size_t input_size, size_t output_size,
+                         std::vector<double> weights, std::vector<double> bias,
+                         std::unique_ptr<IBlas> &&blas) :
+        input_size_(input_size),
+        output_size_(output_size),
+        blas_(std::move(blas)),
+        parameters_((input_size + 1) * output_size),
+        grad_((input_size + 1) * output_size),
+        input_(0, 0) {
+
+    ASSERT(input_size >= 0 && output_size >= 0 && input_size * output_size == weights.size() &&
+           output_size == bias.size());
+
+    const auto delimiter =
+            parameters_.begin() + static_cast<std::iter_difference_t<std::vector<double>>>(input_size_ * output_size_);
+    std::copy(weights.begin(), weights.end(), parameters_.begin());
+    std::copy(bias.begin(), bias.end(), delimiter);
+}
+
 Batch LinearLayer::forward(Batch &&input) {
 
     ASSERT(input.getFeatureSize() == input_size_);
@@ -43,24 +62,6 @@ Batch LinearLayer::backward(const Batch &grad_output) {
 
 std::vector<double> &LinearLayer::getParametersGradient() {
     return grad_;
-}
-
-LinearLayer::LinearLayer(size_t input_size, size_t output_size,
-                         std::vector<double> weights, std::vector<double> bias,
-                         std::unique_ptr<IBlas> &&blas) :
-        input_size_(input_size),
-        output_size_(output_size),
-        blas_(std::move(blas)),
-        parameters_((input_size + 1) * output_size),
-        grad_((input_size+1) * output_size),
-        input_(0, 0) {
-
-    ASSERT(input_size>=0 && output_size>=0 && input_size*output_size == weights.size() && output_size == bias.size());
-
-    const auto delimiter =
-            parameters_.begin() + static_cast<std::iter_difference_t<std::vector<double>>>(input_size_ * output_size_);
-    std::copy(weights.begin(), weights.end(), parameters_.begin());
-    std::copy(bias.begin(), bias.end(), delimiter);
 }
 
 double *LinearLayer::getBPart() {

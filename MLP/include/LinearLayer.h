@@ -7,13 +7,10 @@
 
 #include "ILayer.h"
 #include "IBlas.h"
-#include <memory>
 #include <vector>
 
 class LinearLayer : public ILayer {
 public:
-    //explicit LinearLayer(size_t input_size, size_t output_size, std::unique_ptr<IBlas> &&blas);
-
     explicit LinearLayer(size_t input_size, size_t output_size,
                          std::vector<double> weights,
                          std::vector<double> bias,
