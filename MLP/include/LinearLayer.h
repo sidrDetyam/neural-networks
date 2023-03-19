@@ -22,6 +22,8 @@ public:
 
     std::vector<double> &getParametersGradient() override;
 
+    std::vector<double> &getParameters() override;
+
 private:
     double *getBPart();
 

@@ -71,3 +71,7 @@ double *LinearLayer::getBPart() {
 double *LinearLayer::getGradBPart() {
     return grad_.data() + input_size_ * output_size_;
 }
+
+std::vector<double> &LinearLayer::getParameters() {
+    return parameters_;
+}

@@ -17,6 +17,8 @@ public:
 
     virtual std::vector<double>& getParametersGradient() = 0;
 
+    virtual std::vector<double>& getParameters() = 0;
+
     virtual ~ILayer() = default;
 };
 
