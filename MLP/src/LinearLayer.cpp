@@ -4,9 +4,9 @@
 
 #include <utility>
 
-#include "../include/Batch.h"
-#include "../include/LinearLayer.h"
-#include "../include/Utils.h"
+#include "Batch.h"
+#include "LinearLayer.h"
+#include "Utils.h"
 
 
 LinearLayer::LinearLayer(size_t input_size, size_t output_size,

@@ -3,7 +3,7 @@
 //
 #include <memory>
 
-#include "../include/CpuBlas.h"
+#include "CpuBlas.h"
 
 void
 CpuBlas::dgemm(const double *a, const double *b, bool isATransposed, bool isBTransposed, double *c, int m, int n, int k,

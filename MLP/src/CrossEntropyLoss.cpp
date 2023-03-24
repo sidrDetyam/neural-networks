@@ -1,8 +1,8 @@
 //
 // Created by sidr on 19.03.23.
 //
-#include "../include/CrossEntropyLoss.h"
-#include "../include/Utils.h"
+#include "CrossEntropyLoss.h"
+#include "Utils.h"
 #include <cmath>
 
 std::pair<double, Batch> CrossEntropyLoss::apply(const Batch &batch, const std::vector<int> &one_hot) {

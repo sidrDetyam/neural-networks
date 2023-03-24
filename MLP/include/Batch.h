@@ -12,6 +12,8 @@
 class Batch final{
 public:
 
+    Batch();
+
     Batch(size_t b_size, size_t feature_size) :
             b_size_(b_size),
             feature_size_(feature_size),
@@ -90,6 +92,8 @@ public:
     [[nodiscard]] size_t getFeatureSize() const {
         return feature_size_;
     }
+
+    bool isSameShape(const Batch& other) const;
 
 private:
     std::unique_ptr<double> ptr_;
