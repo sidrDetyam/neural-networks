@@ -2,6 +2,7 @@
 // Created by sidr on 24.03.23.
 //
 #include "Model.h"
+#include <ranges>
 #include <utility>
 #include "CpuBlas.h"
 
@@ -26,9 +27,13 @@ Batch Model::forward(Batch &&batch) {
 void Model::backward(const Batch &output) {
 
     Batch b = output;
-    for(auto & layer : layers_){
+    for(auto & layer : std::ranges::reverse_view(layers_)){
         b = layer->backward(b);
     }
+
+//    for(auto & layer : layers_){
+//        b = layer->backward(b);
+//    }
 }
 
 void Model::step() {

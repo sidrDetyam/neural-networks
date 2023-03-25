@@ -13,9 +13,11 @@ Batch ReLU::forward(Batch &&input) {
         mask_ = std::move(m);
     }
 
-    for(size_t i=0; i<input.getBsize() * input.getFeatureSize(); ++i){
-        *mask_[i] = static_cast<double>(*input[i] >= 0);
-        *input[i] = std::max(*input[i], 0.);
+    for(size_t i=0; i<input.getBsize(); ++i){
+        for(size_t j=0; j<input.getFeatureSize(); ++j){
+            mask_[i][j] = static_cast<double>(input[i][j] >= 0);
+            input[i][j] = std::max(input[i][j], 0.);
+        }
     }
 
     return input;
@@ -26,9 +28,11 @@ Batch ReLU::backward(const Batch &output) {
     ASSERT(mask_.isSameShape(output));
 
     Batch input(mask_.getBsize(), mask_.getFeatureSize());
-    //TODO
-    for(size_t i=0; i<input.getBsize() * input.getFeatureSize(); ++i){
-        *input[i] = *output[i] * *mask_[i];
+
+    for(size_t i=0; i<input.getBsize(); ++i){
+        for(size_t j=0; j<input.getFeatureSize(); ++j){
+            input[i][j] = output[i][j] * mask_[i][j];
+        }
     }
 
     return input;

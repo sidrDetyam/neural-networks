@@ -16,21 +16,27 @@ std::pair<double, Batch> CrossEntropyLoss::apply(const Batch &batch, const std::
         softMaxBatch[i][one_hot[i]] -= 1.;
     }
 
-    return {loss, softMaxBatch};
+    return {loss, std::move(softMaxBatch)};
 }
 
 Batch CrossEntropyLoss::softMax(const Batch &batch) {
 
-    Batch softMaxBatch(batch.getBsize(), batch.getFeatureSize());
+    Batch softMaxBatch = batch;
+    for(int i=0; i<batch.getBsize(); ++i){
+        double mx = *std::max_element(batch[i], batch[i+1]);
+        for(int j=0; j<batch.getFeatureSize(); ++j){
+            softMaxBatch[i][j] -= mx;
+        }
+    }
 
     for (size_t i = 0; i < batch.getBsize(); ++i) {
         double exp_sum = 0.;
         for (size_t j = 0; j < batch.getFeatureSize(); ++j) {
-            exp_sum += exp(batch[i][j]);
+            exp_sum += exp(softMaxBatch[i][j]);
         }
 
         for (size_t j = 0; j < batch.getFeatureSize(); ++j) {
-            softMaxBatch[i][j] = exp(batch[i][j]) / exp_sum;
+            softMaxBatch[i][j] = exp(softMaxBatch[i][j]) / exp_sum;
         }
     }
 

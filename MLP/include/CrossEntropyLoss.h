@@ -7,7 +7,7 @@
 
 #include "ILossFunction.h"
 
-class CrossEntropyLoss: public ILostFunction{
+class CrossEntropyLoss: public IClassificationLostFunction{
 public:
     std::pair<double, Batch> apply(const Batch &batch, const std::vector<int>& one_hot) override;
 

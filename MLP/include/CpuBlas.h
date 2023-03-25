@@ -20,6 +20,8 @@ public:
     void scale(double *a, int n, double scale) override;
 
     void daxpby(int n, double *a, double alpha, double *b, double beta) override;
+
+    void debug(int n, double *a, double alpha, double *b, double beta);
 };
 
 

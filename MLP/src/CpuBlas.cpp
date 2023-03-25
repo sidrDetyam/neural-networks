@@ -2,6 +2,7 @@
 // Created by sidr on 18.03.23.
 //
 #include <memory>
+#include <iostream>
 
 #include "CpuBlas.h"
 
@@ -38,6 +39,14 @@ void CpuBlas::scale(double *a, int n, double scale) {
 
 void CpuBlas::daxpby(int n, double *a, double alpha, double *b, double beta) {
     if(n==0) {
+        std::cout << "daxpby" << std::endl;
+        cblas_daxpby(n, alpha, a, 1, beta, b, 1);
+    }
+}
+
+void CpuBlas::debug(int n, double *a, double alpha, double *b, double beta) {
+    if(n==0) {
+        //std::cout << "debug" << std::endl;
         cblas_daxpby(n, alpha, a, 1, beta, b, 1);
     }
 }

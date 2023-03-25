@@ -12,8 +12,11 @@ add_subdirectory(lib/googletest)
 include_directories(lib/googletest/googletest/include)
 include_directories(lib/googletest/googlemock/include)
 
+add_subdirectory(lib/csv-parser)
+include_directories(lib/csv-parser/include)
+
 add_executable(MLP include/ILayer.h include/Batch.h src/Batch.cpp src/LinearLayer.cpp include/LinearLayer.h include/IBlas.h include/CpuBlas.h src/CpuBlas.cpp include/Utils.h tests/LinearLayerTests.cpp
-        #main.cpp
-        include/ILossFunction.h include/CrossEntropyLoss.h src/CrossEntropyLoss.cpp tests/CrossEntopyTest.cpp include/ReLU.h src/ReLU.cpp include/Model.h src/Model.cpp include/Optimizer.h src/Optimizer.cpp)
-target_link_libraries(MLP ${BLAS_LIBRARIES} gtest gtest_main)
+        main.cpp
+        include/ILossFunction.h include/CrossEntropyLoss.h src/CrossEntropyLoss.cpp tests/CrossEntopyTest.cpp include/ReLU.h src/ReLU.cpp include/Model.h src/Model.cpp include/Optimizer.h src/Optimizer.cpp src/Utils.cpp)
+target_link_libraries(MLP ${BLAS_LIBRARIES} gtest gtest_main csv gcov)
 #target_link_libraries(MLP
