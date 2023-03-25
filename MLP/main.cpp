@@ -99,11 +99,45 @@ Model getMushModel(){
     return model;
 }
 
+Model getMushModel2(){
+    std::vector<std::unique_ptr<ILayer>> layers;
+    layers.emplace_back(linearLayerCreator(45, 22));
+    layers.emplace_back(new ReLU());
+    layers.emplace_back(linearLayerCreator(22, 11));
+    layers.emplace_back(new ReLU());
+    layers.emplace_back(linearLayerCreator(11, 2));
+
+    Model model(std::move(layers));
+
+    return model;
+}
+
 
 enum CONSTS{
     BATCH_SIZE = 64,
-    EPOCHS = 10
+    EPOCHS = 50
 };
+
+
+std::pair<double, double> validate(Model& model, IClassificationLostFunction& loss, const std::vector<batch_label_t>& test){
+    double err = 0;
+    int correct = 0;
+
+    for(const auto & batch : test){
+        Batch b = batch.first;
+        auto out = model.forward(std::move(b));
+        auto l = loss.apply(out, batch.second);
+
+        for(size_t i = 0; i < out.getBsize(); ++i){
+            long cl = std::max_element(out[i], out[i+1]) - out[i];
+            correct += cl == batch.second[i];
+        }
+
+        err += l.first;
+    }
+
+    return {err / (double) BATCH_SIZE, correct / (double)(BATCH_SIZE * test.size())};
+}
 
 
 int main() {
@@ -113,13 +147,15 @@ int main() {
     auto train_batches = get_batches(train_test.first, BATCH_SIZE);
     auto test_batches = get_batches(train_test.first, BATCH_SIZE);
 
-    Model model = getMushModel();
+    auto all_batches = get_batches(data, BATCH_SIZE);
+
+    Model model = getMushModel2();
     CrossEntropyLoss loss;
 
     for(int e=0; e<EPOCHS; ++e){
         double err = 0;
 
-        for(const auto & batch : test_batches){
+        for(const auto & batch : train_batches){
             Batch b = batch.first;
             auto out = model.forward(std::move(b));
             auto l = loss.apply(out, batch.second);
@@ -127,9 +163,15 @@ int main() {
             model.step();
 
             err += l.first;
+
+            //cout << validate(model, loss, test_batches).second << endl;
+            //sleep(1);
         }
 
-        cout << e << " " << err / (double)BATCH_SIZE << endl;
+        auto val = validate(model, loss, test_batches);
+        cout << e << " " << err / (double)BATCH_SIZE << " " << val.first << " " << val.second <<
+            " " << validate(model, loss, all_batches).second << endl;
+        sleep(1);
     }
 
     return 0;

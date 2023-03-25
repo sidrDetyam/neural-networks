@@ -45,7 +45,7 @@ void CpuBlas::daxpby(int n, double *a, double alpha, double *b, double beta) {
 }
 
 void CpuBlas::debug(int n, double *a, double alpha, double *b, double beta) {
-    if(n==0) {
+    if(n!=0) {
         //std::cout << "debug" << std::endl;
         cblas_daxpby(n, alpha, a, 1, beta, b, 1);
     }
