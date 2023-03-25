@@ -57,6 +57,8 @@ Batch LinearLayer::backward(const Batch &grad_output) {
 
     blas_->col_sum(grad_output[0], getGradBPart(), (int) grad_output.getBsize(), (int) output_size_, 0);
 
+    blas_->scale(grad_.data(), (int) grad_.size(), 1 / (double) grad_output.getBsize());
+
     return grad_in;
 }
 

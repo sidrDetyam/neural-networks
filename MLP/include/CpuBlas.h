@@ -16,6 +16,10 @@ public:
     void col_sum(const double *a, double *res, int m, int n, double beta) override;
 
     static std::unique_ptr<CpuBlas> of();
+
+    void scale(double *a, int n, double scale) override;
+
+    void daxpby(int n, double *a, double alpha, double *b, double beta) override;
 };
 
 

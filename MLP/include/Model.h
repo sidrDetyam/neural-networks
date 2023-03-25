@@ -14,7 +14,11 @@ class Model{
 public:
     explicit Model(std::vector<std::unique_ptr<ILayer>> layers);
 
-    
+    Batch forward(Batch&& batch);
+
+    void backward(const Batch& output);
+
+    void step();
 
 private:
     std::vector<std::unique_ptr<ILayer>> layers_;

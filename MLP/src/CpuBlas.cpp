@@ -24,10 +24,20 @@ std::unique_ptr<CpuBlas> CpuBlas::of() {
 }
 
 void CpuBlas::col_sum(const double *a, double *res, int m, int n, double beta) {
-    for(int i=0; i<n; ++i){
+    for (int i = 0; i < n; ++i) {
         res[i] *= beta;
-        for(int j=0; j<m; ++j){
-            res[i] += a[j*n + i];
+        for (int j = 0; j < m; ++j) {
+            res[i] += a[j * n + i];
         }
+    }
+}
+
+void CpuBlas::scale(double *a, int n, double scale) {
+    cblas_dscal(n, scale, a, 1);
+}
+
+void CpuBlas::daxpby(int n, double *a, double alpha, double *b, double beta) {
+    if(n==0) {
+        cblas_daxpby(n, alpha, a, 1, beta, b, 1);
     }
 }

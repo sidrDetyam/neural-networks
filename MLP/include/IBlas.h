@@ -12,6 +12,10 @@ public:
 
     virtual void col_sum(const double* a, double* res, int m, int n, double beta) = 0;
 
+    virtual void scale(double* a, int n, double scale) = 0;
+
+    virtual void daxpby(int n, double* a, double alpha, double* b, double beta) = 0;
+
     virtual ~IBlas() = default;
 };
 
