@@ -26,7 +26,9 @@ public:
 
     virtual void scale(double *a, int n, double scale) = 0;
 
-    virtual void daxpby(int n, double *a, double alpha, double *b, double beta) = 0;
+    virtual void daxpby(int n, const double *a, double alpha, double *b, double beta) = 0;
+
+    virtual void element_wise_mult(int n, const double *a, const double *b, double *c) = 0;
 
     [[maybe_unused]] virtual void dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b,
                                              int m, int n, int k,

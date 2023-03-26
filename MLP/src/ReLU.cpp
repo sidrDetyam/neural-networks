@@ -28,14 +28,8 @@ Tensor ReLU::backward(const Tensor &output) {
     ASSERT(mask_.isSameShape(output));
 
     Tensor input(mask_.get_shape());
-
-    for(size_t i=0; i<input.getBsize(); ++i){
-        for(size_t j=0; j<input.getFeatureSize(); ++j){
-            input[i][j] = output[i][j] * mask_[i][j];
-        }
-    }
-
-    //blas_->daxpby(output.getBsize() * output.getFeatureSize(), out)
+    blas_->element_wise_mult((int)(input.getBsize() * input.getFeatureSize()),
+                             output[0], mask_[0], input[0]);
 
     return input;
 }
@@ -48,6 +42,6 @@ std::vector<double> &ReLU::getParameters() {
     return fiction_grad_;
 }
 
-//ReLU::ReLU(std::unique_ptr<IBlas> &&blas): blas_(std::move(blas)) {
-//
-//}
+ReLU::ReLU(std::unique_ptr<IBlas> &&blas): blas_(std::move(blas)) {
+
+}

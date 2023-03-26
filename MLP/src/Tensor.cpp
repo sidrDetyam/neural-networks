@@ -51,7 +51,7 @@ bool Tensor::isSameShape(const Tensor &other) const {
     return shape_ == other.shape_;
 }
 
-void Tensor::reshape(std::vector<size_t> new_shape) {
+[[maybe_unused]] void Tensor::reshape(std::vector<size_t> new_shape) {
 
     size_t cnt = new_shape.empty()? 0 : 1;
     for(auto i : new_shape){

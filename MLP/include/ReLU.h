@@ -11,7 +11,7 @@
 
 class ReLU : public ILayer{
 public:
-    //explicit ReLU(std::unique_ptr<IBlas>&& blas);
+    explicit ReLU(std::unique_ptr<IBlas>&& blas);
 
     Tensor forward(Tensor &&input) override;
 

@@ -87,28 +87,12 @@ LinearLayer* linearLayerCreator(size_t input, size_t output){
 }
 
 
-//Model getMushModel(){
-//
-//    std::vector<std::unique_ptr<ILayer>> layers;
-//    layers.emplace_back(linearLayerCreator(45, 45));
-//    layers.emplace_back(new ReLU());
-//    layers.emplace_back(linearLayerCreator(45, 16));
-//    layers.emplace_back(new ReLU());
-//    layers.emplace_back(linearLayerCreator(16, 8));
-//    layers.emplace_back(new ReLU());
-//    layers.emplace_back(linearLayerCreator(8, 2));
-//
-//    Model model(std::move(layers));
-//
-//    return model;
-//}
-
 Model getMushModel2(){
     std::vector<std::unique_ptr<ILayer>> layers;
     layers.emplace_back(linearLayerCreator(45, 22));
-    layers.emplace_back(new ReLU());
+    layers.emplace_back(new ReLU(CpuBlas::of()));
     layers.emplace_back(linearLayerCreator(22, 11));
-    layers.emplace_back(new ReLU());
+    layers.emplace_back(new ReLU(CpuBlas::of()));
     layers.emplace_back(linearLayerCreator(11, 2));
 
     SgdOptimizerCreator sgd_creator(0.9, 0.1, std::make_shared<CpuBlas>());
@@ -121,7 +105,7 @@ Model getMushModel2(){
 
 enum CONSTS{
     BATCH_SIZE = 64,
-    EPOCHS = 10
+    EPOCHS = 3
 };
 
 
@@ -171,7 +155,7 @@ int main() {
 
             auto bruh = loss_accuracy(model, loss, test_batches);
             cout << bruh.first << " " << bruh.second << " " << endl;
-            sleep(1);
+            //sleep(1);
         }
 
         auto val = loss_accuracy(model, loss, test_batches);

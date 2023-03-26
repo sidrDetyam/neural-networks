@@ -33,7 +33,7 @@ public:
 
     [[nodiscard]] bool isSameShape(const Tensor& other) const;
 
-    void reshape(tshape_t new_shape);
+    [[maybe_unused]] void reshape(tshape_t new_shape);
 
 private:
     tshape_t shape_;

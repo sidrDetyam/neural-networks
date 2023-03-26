@@ -36,13 +36,11 @@ void CpuBlas::scale(double *a, int n, double scale) {
     cblas_dscal(n, scale, a, 1);
 }
 
-void CpuBlas::daxpby(int n, double *a, double alpha, double *b, double beta) {
+void CpuBlas::daxpby(int n, const double *a, double alpha, double *b, double beta) {
     if(n!=0) {
         cblas_daxpby(n, alpha, a, 1, beta, b, 1);
     }
 }
-
-
 
 void CpuBlas::dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b, int m, int n, int k, double alpha,
                          const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) {
@@ -51,6 +49,10 @@ void CpuBlas::dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b
                 details::to_cblas_transpose(trans_a),
                 details::to_cblas_transpose(trans_b),
                 m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+}
+
+void CpuBlas::element_wise_mult(int n, const double *a, const double *b, double *c) {
+    cblas_dsbmv(CblasRowMajor, CblasLower, n, 0, 1.0, a, 1, b, 1, 0.0, c, 1);
 }
 
 enum CBLAS_ORDER details::to_cblas_order(MatrixOrder order) {
