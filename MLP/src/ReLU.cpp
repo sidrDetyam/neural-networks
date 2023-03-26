@@ -1,18 +1,18 @@
 #include <vector>
-#include "Batch.h"
+#include "Tensor.h"
 #include "ReLU.h"
 #include "Utils.h"
 
 //
 // Created by sidr on 24.03.23.
 //
-Batch ReLU::forward(Batch &&input) {
+Tensor ReLU::forward(Tensor &&input) {
 
-    if(!mask_.isSameBandFsize(input)) {
-        Batch m(input.getBsize(), {input.getFeatureSize()});
-        mask_ = std::move(m);
+    if(!mask_.isSameShape(input)){
+        mask_ = input;
     }
 
+    /// TODO
     for(size_t i=0; i<input.getBsize(); ++i){
         for(size_t j=0; j<input.getFeatureSize(); ++j){
             mask_[i][j] = static_cast<double>(input[i][j] >= 0);
@@ -23,17 +23,19 @@ Batch ReLU::forward(Batch &&input) {
     return input;
 }
 
-Batch ReLU::backward(const Batch &output) {
+Tensor ReLU::backward(const Tensor &output) {
 
-    ASSERT(mask_.isSameBandFsize(output));
+    ASSERT(mask_.isSameShape(output));
 
-    Batch input(mask_.getBsize(), {mask_.getFeatureSize()});
+    Tensor input(mask_.get_shape());
 
     for(size_t i=0; i<input.getBsize(); ++i){
         for(size_t j=0; j<input.getFeatureSize(); ++j){
             input[i][j] = output[i][j] * mask_[i][j];
         }
     }
+
+    //blas_->daxpby(output.getBsize() * output.getFeatureSize(), out)
 
     return input;
 }
@@ -45,3 +47,7 @@ std::vector<double> &ReLU::getParametersGradient() {
 std::vector<double> &ReLU::getParameters() {
     return fiction_grad_;
 }
+
+//ReLU::ReLU(std::unique_ptr<IBlas> &&blas): blas_(std::move(blas)) {
+//
+//}

@@ -4,15 +4,15 @@
 //
 // Created by sidr on 26.03.23.
 //
-Batch Conv::forward(Batch &&input) {
+Tensor Conv::forward(Tensor &&input) {
 
     //input_copy_ = std::move(input);
 
-    return Batch();
+    return Tensor();
 }
 
-Batch Conv::backward(const Batch &output) {
-    return Batch();
+Tensor Conv::backward(const Tensor &output) {
+    return Tensor();
 }
 
 std::vector<double> &Conv::getParametersGradient() {

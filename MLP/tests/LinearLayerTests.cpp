@@ -8,7 +8,7 @@
 
 TEST(LL, forward){
     LinearLayer ll(3, 2, {1., 2., 3., 4., 5, 6}, {11, 22}, CpuBlas::of());
-    Batch input({{1, 2, 3}});
+    Tensor input(Tensor{{1, 2, 3}, {1, 3}});
     auto output = ll.forward(std::move(input));
     ASSERT_EQ(output.getBsize(), 1) << "Incorrect batch size";
     ASSERT_EQ(output.getFeatureSize(), 2) << "Incorrect features size";
@@ -20,11 +20,11 @@ TEST(LL, forward){
 
 TEST(LL, backward){
     LinearLayer ll(3, 2, {1., 2., 3., 4., 5, 6}, {11, 22}, CpuBlas::of());
-    Batch input({{1, 2, 3}, {1, 2, 3}});
+    Tensor input({1, 2, 3, 1, 2, 3}, {2, 3});
     ll.forward(std::move(input));
 
     //auto grad_b0 = ll.backward({{90, 168}});
-    auto grad_b = ll.backward({{90, 168}, {90, 168}});
+    auto grad_b = ll.backward(Tensor{{90, 168, 90, 168}, {2, 2}});
     auto grad_p = ll.getParametersGradient();
 
     std::vector<double> expected_grad_p{90., 180., 270., 168., 336., 504., 90, 168};

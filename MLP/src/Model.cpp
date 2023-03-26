@@ -16,9 +16,9 @@ Model::Model(std::vector<std::unique_ptr<ILayer>> layers,
     }
 }
 
-Batch Model::forward(Batch &&batch) {
+Tensor Model::forward(Tensor &&batch) {
 
-    Batch out = std::move(batch);
+    Tensor out = std::move(batch);
     for(auto & layer : layers_){
         out = layer->forward(std::move(out));
     }
@@ -26,9 +26,9 @@ Batch Model::forward(Batch &&batch) {
     return out;
 }
 
-void Model::backward(const Batch &output) {
+void Model::backward(const Tensor &output) {
 
-    Batch b = output;
+    Tensor b = output;
     for(auto & layer : std::ranges::reverse_view(layers_)){
         b = layer->backward(b);
     }

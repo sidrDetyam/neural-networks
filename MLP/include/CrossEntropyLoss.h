@@ -9,9 +9,9 @@
 
 class CrossEntropyLoss: public IClassificationLostFunction{
 public:
-    std::pair<double, Batch> apply(const Batch &batch, const std::vector<int>& one_hot) override;
+    std::pair<double, Tensor> apply(const Tensor &batch, const std::vector<int>& one_hot) override;
 
-    static Batch softMax(const Batch &batch);
+    static Tensor softMax(const Tensor &batch);
 };
 
 #endif //MLP_CROSSENTROPYLOSS_H

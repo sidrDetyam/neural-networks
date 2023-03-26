@@ -14,9 +14,9 @@ public:
                   std::unique_ptr<IBlas> blas,
                   std::vector<double> params);
 
-    Batch forward(Batch &&input) override;
+    Tensor forward(Tensor &&input) override;
 
-    Batch backward(const Batch &output) override;
+    Tensor backward(const Tensor &output) override;
 
     std::vector<double> &getParametersGradient() override;
 
@@ -24,7 +24,7 @@ public:
 
 private:
     std::unique_ptr<IBlas> blas_;
-    Batch input_copy_;
+    Tensor input_copy_;
     std::pair<size_t, size_t> shape_;
     std::vector<double> params_;
     std::vector<double> grad_;

@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "Batch.h"
+#include "Tensor.h"
 #include <cstring>
 #include <random>
 #include "Model.h"
@@ -25,7 +25,7 @@ using namespace csv;
 
 using data_t = std::vector<std::pair<std::vector<double>, int>>;
 
-std::vector<std::pair<std::vector<double>, int>> load_data(){
+static std::vector<std::pair<std::vector<double>, int>> load_data(){
 
     std::vector<std::pair<std::vector<double>, int>> data;
 
@@ -56,10 +56,10 @@ std::pair<data_t, data_t> split(data_t data, double train_fraction = 0.8){
 }
 
 
-using batch_label_t = std::pair<Batch, std::vector<int>>;
+using batch_label_t = std::pair<Tensor, std::vector<int>>;
 
 std::vector<batch_label_t> get_batches(const data_t &data, int bsize){
-    Batch batch(bsize, {45});
+    Tensor batch({static_cast<size_t>(bsize), 45});
     std::vector<int> classes(bsize);
     int pos = 0;
 
@@ -121,16 +121,16 @@ Model getMushModel2(){
 
 enum CONSTS{
     BATCH_SIZE = 64,
-    EPOCHS = 50
+    EPOCHS = 10
 };
 
 
-std::pair<double, double> validate(Model& model, IClassificationLostFunction& loss, const std::vector<batch_label_t>& test){
+std::pair<double, double> loss_accuracy(Model& model, IClassificationLostFunction& loss, const std::vector<batch_label_t>& test){
     double err = 0;
     int correct = 0;
 
     for(const auto & batch : test){
-        Batch b = batch.first;
+        Tensor b = batch.first;
         auto out = model.forward(std::move(b));
         auto l = loss.apply(out, batch.second);
 
@@ -147,7 +147,6 @@ std::pair<double, double> validate(Model& model, IClassificationLostFunction& lo
 
 
 int main() {
-
     auto data = load_data();
     auto train_test = split(data, 0.8);
     auto train_batches = get_batches(train_test.first, BATCH_SIZE);
@@ -162,7 +161,7 @@ int main() {
         double err = 0;
 
         for(const auto & batch : train_batches){
-            Batch b = batch.first;
+            Tensor b = batch.first;
             auto out = model.forward(std::move(b));
             auto l = loss.apply(out, batch.second);
             model.backward(l.second);
@@ -170,14 +169,14 @@ int main() {
 
             err += l.first;
 
-            auto bruh = validate(model, loss, test_batches);
+            auto bruh = loss_accuracy(model, loss, test_batches);
             cout << bruh.first << " " << bruh.second << " " << endl;
             sleep(1);
         }
 
-        auto val = validate(model, loss, test_batches);
+        auto val = loss_accuracy(model, loss, test_batches);
         cout << e << " " << err / (double)BATCH_SIZE << " " << val.first << " " << val.second <<
-             " " << validate(model, loss, all_batches).second << endl;
+             " " << loss_accuracy(model, loss, all_batches).second << endl;
         sleep(1);
     }
 

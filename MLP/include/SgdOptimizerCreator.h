@@ -10,13 +10,13 @@
 
 class SgdOptimizerCreator: public IOptimizerCreator{
 public:
-    explicit SgdOptimizerCreator(double m_coff, double step_coff, std::shared_ptr<IBlas> blas);
+    explicit SgdOptimizerCreator(double m_coff, double lr, std::shared_ptr<IBlas> blas);
 
     IOptimizer* create(ILayer *layer) override;
 
 private:
     double m_coff_;
-    double step_coff_;
+    double lr_;
     std::shared_ptr<IBlas> blas_;
 };
 

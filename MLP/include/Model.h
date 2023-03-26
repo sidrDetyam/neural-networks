@@ -16,9 +16,9 @@ public:
     explicit Model(std::vector<std::unique_ptr<ILayer>> layers,
                    std::unique_ptr<IOptimizerCreator>&& creator);
 
-    Batch forward(Batch&& batch);
+    Tensor forward(Tensor&& batch);
 
-    void backward(const Batch& output);
+    void backward(const Tensor& output);
 
     void step();
 
