@@ -2,8 +2,8 @@
 // Created by sidr on 19.03.23.
 //
 
-#ifndef MLP_ILOSSFUNCTION_H
-#define MLP_ILOSSFUNCTION_H
+#ifndef MLP_ICLASSIFICATIONLOSSFUNCTION_H
+#define MLP_ICLASSIFICATIONLOSSFUNCTION_H
 
 #include "Batch.h"
 #include <vector>
@@ -15,4 +15,4 @@ public:
     virtual ~IClassificationLostFunction() = default;
 };
 
-#endif //MLP_ILOSSFUNCTION_H
+#endif //MLP_ICLASSIFICATIONLOSSFUNCTION_H

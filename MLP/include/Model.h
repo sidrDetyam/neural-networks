@@ -5,14 +5,16 @@
 #ifndef MLP_MODEL_H
 #define MLP_MODEL_H
 
-#include "Optimizer.h"
 #include <vector>
 #include <memory>
 #include <ILayer.h>
+#include "IOptimizerCreator.h"
+
 
 class Model{
 public:
-    explicit Model(std::vector<std::unique_ptr<ILayer>> layers);
+    explicit Model(std::vector<std::unique_ptr<ILayer>> layers,
+                   std::unique_ptr<IOptimizerCreator>&& creator);
 
     Batch forward(Batch&& batch);
 
@@ -22,7 +24,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<ILayer>> layers_;
-    std::vector<Optimizer> optimizers_;
+    std::vector<std::unique_ptr<IOptimizer>> optimizers_;
 };
 
 #endif //MLP_MODEL_H

@@ -1,11 +1,13 @@
 //
 // Created by sidr on 25.03.23.
 //
-#include "Optimizer.h"
+#include "SgdOptimizer.h"
+
+#include <utility>
 #include "Utils.h"
 #include "CpuBlas.h"
 
-Optimizer::Optimizer(ILayer *layer, double m_coff, double step_coff, std::unique_ptr<IBlas>&& blas):
+SgdOptimizer::SgdOptimizer(ILayer *layer, double m_coff, double step_coff, std::shared_ptr<IBlas> blas):
     layer_(layer),
     m_coff_(m_coff),
     blas_(std::move(blas)),
@@ -13,7 +15,7 @@ Optimizer::Optimizer(ILayer *layer, double m_coff, double step_coff, std::unique
 
 }
 
-void Optimizer::step() {
+void SgdOptimizer::step() {
 
     std::vector<double>& grad = layer_->getParametersGradient();
     std::vector<double>& params = layer_->getParameters();

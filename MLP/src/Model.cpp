@@ -7,10 +7,11 @@
 #include "CpuBlas.h"
 
 
-Model::Model(std::vector<std::unique_ptr<ILayer>> layers): layers_(std::move(layers)) {
+Model::Model(std::vector<std::unique_ptr<ILayer>> layers, std::unique_ptr<IOptimizerCreator> &&creator):
+    layers_(std::move(layers)){
 
     for(auto & layer : layers_){
-        optimizers_.emplace_back(layer.get(), 0.9, 0.1, std::make_unique<CpuBlas>());
+        optimizers_.emplace_back(creator->create(layer.get()));
     }
 }
 
@@ -30,15 +31,11 @@ void Model::backward(const Batch &output) {
     for(auto & layer : std::ranges::reverse_view(layers_)){
         b = layer->backward(b);
     }
-
-//    for(auto & layer : layers_){
-//        b = layer->backward(b);
-//    }
 }
 
 void Model::step() {
     for(auto & opt : optimizers_){
-        opt.step();
+        opt->step();
     }
 }
 

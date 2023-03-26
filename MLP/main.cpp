@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "ReLU.h"
 #include "CrossEntropyLoss.h"
+#include "SgdOptimizerCreator.h"
 
 #include <unistd.h>
 
@@ -83,21 +84,21 @@ LinearLayer* linearLayerCreator(size_t input, size_t output){
 }
 
 
-Model getMushModel(){
-
-    std::vector<std::unique_ptr<ILayer>> layers;
-    layers.emplace_back(linearLayerCreator(45, 45));
-    layers.emplace_back(new ReLU());
-    layers.emplace_back(linearLayerCreator(45, 16));
-    layers.emplace_back(new ReLU());
-    layers.emplace_back(linearLayerCreator(16, 8));
-    layers.emplace_back(new ReLU());
-    layers.emplace_back(linearLayerCreator(8, 2));
-
-    Model model(std::move(layers));
-
-    return model;
-}
+//Model getMushModel(){
+//
+//    std::vector<std::unique_ptr<ILayer>> layers;
+//    layers.emplace_back(linearLayerCreator(45, 45));
+//    layers.emplace_back(new ReLU());
+//    layers.emplace_back(linearLayerCreator(45, 16));
+//    layers.emplace_back(new ReLU());
+//    layers.emplace_back(linearLayerCreator(16, 8));
+//    layers.emplace_back(new ReLU());
+//    layers.emplace_back(linearLayerCreator(8, 2));
+//
+//    Model model(std::move(layers));
+//
+//    return model;
+//}
 
 Model getMushModel2(){
     std::vector<std::unique_ptr<ILayer>> layers;
@@ -107,7 +108,9 @@ Model getMushModel2(){
     layers.emplace_back(new ReLU());
     layers.emplace_back(linearLayerCreator(11, 2));
 
-    Model model(std::move(layers));
+    SgdOptimizerCreator sgd_creator(0.9, 0.1, std::make_shared<CpuBlas>());
+
+    Model model(std::move(layers), std::make_unique<SgdOptimizerCreator>(std::move(sgd_creator)));
 
     return model;
 }
@@ -164,8 +167,9 @@ int main() {
 
             err += l.first;
 
-            //cout << validate(model, loss, test_batches).second << endl;
-            //sleep(1);
+            auto bruh = validate(model, loss, test_batches);
+            cout << bruh.first << " " << bruh.second << " " << endl;
+            sleep(1);
         }
 
         auto val = validate(model, loss, test_batches);

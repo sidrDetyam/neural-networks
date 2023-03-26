@@ -5,7 +5,7 @@
 #ifndef MLP_CROSSENTROPYLOSS_H
 #define MLP_CROSSENTROPYLOSS_H
 
-#include "ILossFunction.h"
+#include "IClassificationLossFunction.h"
 
 class CrossEntropyLoss: public IClassificationLostFunction{
 public:
