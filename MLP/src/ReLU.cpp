@@ -8,8 +8,8 @@
 //
 Batch ReLU::forward(Batch &&input) {
 
-    if(!mask_.isSameShape(input)) {
-        Batch m(input.getBsize(), input.getFeatureSize());
+    if(!mask_.isSameBandFsize(input)) {
+        Batch m(input.getBsize(), {input.getFeatureSize()});
         mask_ = std::move(m);
     }
 
@@ -25,9 +25,9 @@ Batch ReLU::forward(Batch &&input) {
 
 Batch ReLU::backward(const Batch &output) {
 
-    ASSERT(mask_.isSameShape(output));
+    ASSERT(mask_.isSameBandFsize(output));
 
-    Batch input(mask_.getBsize(), mask_.getFeatureSize());
+    Batch input(mask_.getBsize(), {mask_.getFeatureSize()});
 
     for(size_t i=0; i<input.getBsize(); ++i){
         for(size_t j=0; j<input.getFeatureSize(); ++j){

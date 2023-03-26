@@ -10,7 +10,8 @@
 
 class IClassificationLostFunction{
 public:
-    virtual std::pair<double, Batch> apply(const Batch& batch, const std::vector<int>& one_hot) = 0;
+    virtual std::pair<double, Batch> apply(const Batch& batch,
+                                           const std::vector<int>& one_hot) = 0;
 
     virtual ~IClassificationLostFunction() = default;
 };

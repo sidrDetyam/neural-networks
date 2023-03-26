@@ -7,7 +7,8 @@
 #include "CpuBlas.h"
 
 
-Model::Model(std::vector<std::unique_ptr<ILayer>> layers, std::unique_ptr<IOptimizerCreator> &&creator):
+Model::Model(std::vector<std::unique_ptr<ILayer>> layers,
+             std::unique_ptr<IOptimizerCreator> &&creator):
     layers_(std::move(layers)){
 
     for(auto & layer : layers_){

@@ -11,7 +11,7 @@
 
 class SgdOptimizer: public IOptimizer{
 public:
-    explicit SgdOptimizer(ILayer* layer, double m_coff_, double step_coff_, std::shared_ptr<IBlas> blas);
+    explicit SgdOptimizer(ILayer* layer, double m_coff_, double lr, std::shared_ptr<IBlas> blas);
 
     void step() override;
 
@@ -20,7 +20,7 @@ private:
     std::vector<double> m_;
     bool isFirst_ = true;
     double m_coff_;
-    double step_coff_;
+    double lr_;
     std::shared_ptr<IBlas> blas_;
 };
 

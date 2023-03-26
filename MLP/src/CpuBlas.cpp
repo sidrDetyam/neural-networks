@@ -2,7 +2,6 @@
 // Created by sidr on 18.03.23.
 //
 #include <memory>
-#include <iostream>
 
 #include "CpuBlas.h"
 
@@ -38,15 +37,26 @@ void CpuBlas::scale(double *a, int n, double scale) {
 }
 
 void CpuBlas::daxpby(int n, double *a, double alpha, double *b, double beta) {
-    if(n==0) {
-        std::cout << "daxpby" << std::endl;
+    if(n!=0) {
         cblas_daxpby(n, alpha, a, 1, beta, b, 1);
     }
 }
 
-void CpuBlas::debug(int n, double *a, double alpha, double *b, double beta) {
-    if(n!=0) {
-        //std::cout << "debug" << std::endl;
-        cblas_daxpby(n, alpha, a, 1, beta, b, 1);
-    }
+
+
+void CpuBlas::dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b, int m, int n, int k, double alpha,
+                         const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) {
+
+    cblas_dgemm(details::to_cblas_order(order),
+                details::to_cblas_transpose(trans_a),
+                details::to_cblas_transpose(trans_b),
+                m, n, k, alpha, a, lda, b, ldb, beta, c, ldc);
+}
+
+enum CBLAS_ORDER details::to_cblas_order(MatrixOrder order) {
+    return order==ROW_ORDER? CblasRowMajor : CblasColMajor;
+}
+
+enum CBLAS_TRANSPOSE details::to_cblas_transpose(Transpose trans) {
+    return trans==TRANS? CblasTrans : CblasNoTrans;
 }

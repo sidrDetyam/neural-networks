@@ -9,6 +9,12 @@
 #include <cblas.h>
 #include <memory>
 
+namespace details{
+    enum CBLAS_ORDER to_cblas_order(MatrixOrder order);
+
+    enum CBLAS_TRANSPOSE to_cblas_transpose(Transpose trans);
+}
+
 class CpuBlas: public IBlas{
 public:
     void dgemm(const double *a, const double *b, bool isATransposed, bool isBTransposed, double *c, int m, int n, int k, double beta) override;
@@ -21,7 +27,8 @@ public:
 
     void daxpby(int n, double *a, double alpha, double *b, double beta) override;
 
-    void debug(int n, double *a, double alpha, double *b, double beta);
+    void dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b, int m, int n, int k, double alpha,
+                    const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) override;
 };
 
 

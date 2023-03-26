@@ -16,8 +16,7 @@ LinearLayer::LinearLayer(size_t input_size, size_t output_size,
         output_size_(output_size),
         blas_(std::move(blas)),
         parameters_((input_size + 1) * output_size),
-        grad_((input_size + 1) * output_size),
-        input_(0, 0) {
+        grad_((input_size + 1) * output_size){
 
     ASSERT(input_size >= 0 && output_size >= 0 && input_size * output_size == weights.size() &&
            output_size == bias.size());
@@ -31,7 +30,7 @@ LinearLayer::LinearLayer(size_t input_size, size_t output_size,
 Batch LinearLayer::forward(Batch &&input) {
 
     ASSERT(input.getFeatureSize() == input_size_);
-    Batch output(input.getBsize(), output_size_);
+    Batch output(input.getBsize(), {output_size_});
 
     for (size_t i = 0; i < output.getBsize(); ++i) {
         memcpy(output[i], getBPart(), output_size_ * sizeof(double));
@@ -47,7 +46,7 @@ Batch LinearLayer::forward(Batch &&input) {
 Batch LinearLayer::backward(const Batch &grad_output) {
 
     ASSERT(grad_output.getBsize() == input_.getBsize() && grad_output.getFeatureSize() == output_size_);
-    Batch grad_in(grad_output.getBsize(), input_size_);
+    Batch grad_in(grad_output.getBsize(), {input_size_});
 
     blas_->dgemm(grad_output[0], parameters_.data(), false, false, grad_in[0],
                  (int) grad_output.getBsize(), (int) input_size_, (int) output_size_, 0);

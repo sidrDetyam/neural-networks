@@ -16,7 +16,10 @@ add_subdirectory(lib/csv-parser)
 include_directories(lib/csv-parser/include)
 
 add_executable(MLP include/ILayer.h include/Batch.h src/Batch.cpp src/LinearLayer.cpp include/LinearLayer.h include/IBlas.h include/CpuBlas.h src/CpuBlas.cpp include/Utils.h tests/LinearLayerTests.cpp
-        main.cpp
-        include/IClassificationLossFunction.h include/CrossEntropyLoss.h src/CrossEntropyLoss.cpp tests/CrossEntopyTest.cpp include/ReLU.h src/ReLU.cpp include/Model.h src/Model.cpp include/SgdOptimizer.h src/SgdOptimizer.cpp src/Utils.cpp include/Conv.h src/Conv.cpp include/IOptimizerCreator.h include/IOptimizer.h include/SgdOptimizerCreator.h src/SgdOptimizerCreator.cpp)
+        include/IClassificationLossFunction.h include/CrossEntropyLoss.h src/CrossEntropyLoss.cpp tests/CrossEntopyTest.cpp include/ReLU.h src/ReLU.cpp include/Model.h src/Model.cpp include/SgdOptimizer.h src/SgdOptimizer.cpp src/Utils.cpp include/Conv.h src/Conv.cpp include/IOptimizerCreator.h include/IOptimizer.h include/SgdOptimizerCreator.h src/SgdOptimizerCreator.cpp
+
+        #main.cpp
+        models/Mushroom.cpp
+        )
 target_link_libraries(MLP ${BLAS_LIBRARIES} gtest gtest_main csv gcov)
 #target_link_libraries(MLP
