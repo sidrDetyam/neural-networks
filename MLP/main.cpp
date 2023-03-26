@@ -167,9 +167,9 @@ int main() {
 
             err += l.first;
 
-            auto bruh = validate(model, loss, test_batches);
-            cout << bruh.first << " " << bruh.second << " " << endl;
-            sleep(1);
+//            auto bruh = validate(model, loss, test_batches);
+//            cout << bruh.first << " " << bruh.second << " " << endl;
+//            sleep(1);
         }
 
         auto val = validate(model, loss, test_batches);

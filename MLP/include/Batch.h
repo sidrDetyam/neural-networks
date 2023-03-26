@@ -8,111 +8,31 @@
 #include <memory>
 #include <cstring>
 #include <cassert>
+#include <vector>
 
 class Batch final {
 public:
-
     Batch();
 
-    Batch(size_t b_size, size_t feature_size) :
-            b_size_(b_size),
-            feature_size_(feature_size) {
-//        if (b_size != 0 || feature_size != 0) {
-//            ptr_.reset(new double[b_size * feature_size]);
-//        }
+    explicit Batch(size_t b_size, size_t feature_size);
 
-        ptr_ = b_size != 0 || feature_size != 0? new double[b_size * feature_size] : nullptr;
-    }
+    Batch(std::initializer_list<std::initializer_list<double>> b);
 
-    Batch(std::initializer_list<std::initializer_list<double>> b) : Batch(b.size(), b.begin()->size()) {
+    double *operator[](size_t i);
 
-        auto iti = b.begin();
-        for (size_t i = 0; i < b_size_; ++i) {
-            auto itj = iti->begin();
-            for (size_t j = 0; j < feature_size_; ++j) {
-                ptr_[i * feature_size_ + j] = *itj;
-                ++itj;
-            }
-            ++iti;
-        }
-    }
+    const double *operator[](size_t i) const;
 
-    Batch(const Batch &batch) :
-            b_size_(batch.b_size_),
-            feature_size_(batch.feature_size_) {
+    [[nodiscard]] size_t getBsize() const;
 
-        assert(b_size_ >= 0 && feature_size_ >= 0);
-
-        auto *tmp = new double[b_size_ * feature_size_];
-        memcpy(tmp, batch[0], b_size_ * feature_size_ * sizeof(double));
-        ptr_ = tmp;
-    }
-
-    Batch &operator=(const Batch &batch) {
-        if (this == &batch) {
-            return *this;
-        }
-
-        if (b_size_ != batch.b_size_ || feature_size_ != batch.feature_size_) {
-            delete []ptr_;
-            ptr_ = new double[batch.b_size_ * batch.feature_size_];
-        }
-
-        b_size_ = batch.b_size_;
-        feature_size_ = batch.feature_size_;
-        memcpy(ptr_, batch[0], b_size_ * feature_size_ * sizeof(double));
-        return *this;
-    }
-
-    Batch &operator=(Batch &&batch) noexcept {
-        b_size_ = batch.b_size_;
-        feature_size_ = batch.feature_size_;
-        batch.b_size_ = 0;
-        batch.feature_size_ = 0;
-        ptr_ = batch.ptr_;
-        batch.ptr_ = nullptr;
-        return *this;
-    }
-
-    Batch(Batch &&batch) noexcept:
-            b_size_(batch.b_size_),
-            feature_size_(batch.feature_size_),
-            ptr_(batch.ptr_) {
-        batch.b_size_ = 0;
-        batch.feature_size_ = 0;
-        batch.ptr_ = nullptr;
-    }
-
-    double *operator[](size_t i) {
-        return &ptr_[i * feature_size_];
-    }
-
-    const double *operator[](size_t i) const {
-        return &ptr_[i * feature_size_];
-    }
-
-    [[nodiscard]] size_t getBsize() const {
-        return b_size_;
-    }
-
-    [[nodiscard]] size_t getFeatureSize() const {
-        return feature_size_;
-    }
+    [[nodiscard]] size_t getFeatureSize() const;
 
     [[nodiscard]] bool isSameShape(const Batch &other) const;
 
-    ~Batch(){
-        delete[] ptr_;
-    }
-
 private:
-    //std::unique_ptr<double> ptr_;
-    double* ptr_;
-
     size_t b_size_;
     size_t feature_size_;
+    std::vector<double> data_;
 };
 
-using Matrix = Batch;
 
 #endif //MLP_BATCH_H
