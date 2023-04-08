@@ -61,3 +61,20 @@ bool Tensor::isSameShape(const Tensor &other) const {
     ASSERT(cnt == getBsize() * getFeatureSize());
     shape_ = std::move(new_shape);
 }
+
+double* Tensor::get_ptr(const std::vector<size_t>& coord){
+    ASSERT(!coord.empty() && coord.size() <= shape_.size());
+    double* ptr = data_.data();
+    size_t sz = getFeatureSize();
+
+    for(size_t i=0; i < coord.size(); ++i){
+        ptr += sz * coord[i];
+        sz /= shape_[i];
+    }
+
+    return ptr;
+}
+
+tdata_t &Tensor::data() {
+    return data_;
+}

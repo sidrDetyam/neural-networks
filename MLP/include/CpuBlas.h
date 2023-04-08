@@ -32,7 +32,7 @@ public:
 
     void element_wise_mult(int n, const double *a, const double *b, double *c) override;
 
-    void convolve(double *A, double *W, double *C, int N, int M, int R, int S, double beta) override;
+    void convolve(const double *A, const double *W, double *C, int N, int M, int R, int S, double beta) override;
 };
 
 

@@ -35,6 +35,10 @@ public:
 
     [[maybe_unused]] void reshape(tshape_t new_shape);
 
+    [[nodiscard]] double* get_ptr(const std::vector<size_t>& coord);
+
+    [[nodiscard]] tdata_t& data();
+
 private:
     tshape_t shape_;
     tdata_t data_;
