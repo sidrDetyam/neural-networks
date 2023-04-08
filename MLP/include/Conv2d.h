@@ -2,17 +2,17 @@
 // Created by sidr on 26.03.23.
 //
 
-#ifndef MLP_CONV_H
-#define MLP_CONV_H
+#ifndef MLP_CONV2D_H
+#define MLP_CONV2D_H
 
 #include "ILayer.h"
 #include "IBlas.h"
 
-class Conv: public ILayer{
+class Conv2d: public ILayer{
 public:
-    explicit Conv(std::pair<size_t, size_t> shape,
-                  std::unique_ptr<IBlas> blas,
-                  std::vector<double> params);
+    explicit Conv2d(std::pair<size_t, size_t> shape,
+                    std::unique_ptr<IBlas> blas,
+                    std::vector<double> params);
 
     Tensor forward(Tensor &&input) override;
 
@@ -30,4 +30,4 @@ private:
     std::vector<double> grad_;
 };
 
-#endif //MLP_CONV_H
+#endif //MLP_CONV2D_H

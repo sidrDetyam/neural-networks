@@ -95,7 +95,7 @@ Model getMushModel2(){
     layers.emplace_back(new ReLU(CpuBlas::of()));
     layers.emplace_back(linearLayerCreator(11, 2));
 
-    SgdOptimizerCreator sgd_creator(0.9, 0.1, std::make_shared<CpuBlas>());
+    SgdOptimizerCreator sgd_creator(0.95, 0.05, std::make_shared<CpuBlas>());
 
     Model model(std::move(layers), std::make_unique<SgdOptimizerCreator>(std::move(sgd_creator)));
 
@@ -105,7 +105,7 @@ Model getMushModel2(){
 
 enum CONSTS{
     BATCH_SIZE = 64,
-    EPOCHS = 3
+    EPOCHS = 10
 };
 
 
@@ -132,7 +132,7 @@ std::pair<double, double> loss_accuracy(Model& model, IClassificationLostFunctio
 
 int main() {
     auto data = load_data();
-    auto train_test = split(data, 0.8);
+    auto train_test = split(data, 0.7);
     auto train_batches = get_batches(train_test.first, BATCH_SIZE);
     auto test_batches = get_batches(train_test.first, BATCH_SIZE);
 
@@ -153,9 +153,9 @@ int main() {
 
             err += l.first;
 
-            auto bruh = loss_accuracy(model, loss, test_batches);
-            cout << bruh.first << " " << bruh.second << " " << endl;
-            //sleep(1);
+//            auto bruh = loss_accuracy(model, loss, test_batches);
+//            cout << bruh.first << " " << bruh.second << " " << endl;
+//            sleep(1);
         }
 
         auto val = loss_accuracy(model, loss, test_batches);

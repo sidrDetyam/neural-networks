@@ -36,6 +36,8 @@ public:
                                              const double *b, int ldb, double beta,
                                              double *c, int ldc) = 0;
 
+    virtual void convolve(double* A, double* W, double* C, int N, int M, int R, int S, double beta) = 0;
+
     virtual ~IBlas() = default;
 };
 

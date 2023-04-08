@@ -1,31 +1,31 @@
-#include "Conv.h"
+#include "Conv2d.h"
 #include "Utils.h"
 
 //
 // Created by sidr on 26.03.23.
 //
-Tensor Conv::forward(Tensor &&input) {
+Tensor Conv2d::forward(Tensor &&input) {
 
     //input_copy_ = std::move(input);
 
     return Tensor();
 }
 
-Tensor Conv::backward(const Tensor &output) {
+Tensor Conv2d::backward(const Tensor &output) {
     return Tensor();
 }
 
-std::vector<double> &Conv::getParametersGradient() {
+std::vector<double> &Conv2d::getParametersGradient() {
     return grad_;
 }
 
-std::vector<double> &Conv::getParameters() {
+std::vector<double> &Conv2d::getParameters() {
     return params_;
 }
 
-Conv::Conv(std::pair<size_t, size_t> shape,
-           std::unique_ptr<IBlas> blas,
-           std::vector<double> params):
+Conv2d::Conv2d(std::pair<size_t, size_t> shape,
+               std::unique_ptr<IBlas> blas,
+               std::vector<double> params):
            shape_(std::move(shape)),
            blas_(std::move(blas)),
            params_(std::move(params)){
