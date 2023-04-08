@@ -16,9 +16,9 @@ public:
                          std::vector<double> bias,
                          std::unique_ptr<IBlas> &&blas);
 
-    Batch forward(Batch &&input) override;
+    Tensor forward(Tensor &&input) override;
 
-    Batch backward(const Batch &output) override;
+    Tensor backward(const Tensor &output) override;
 
     std::vector<double> &getParametersGradient() override;
 
@@ -35,7 +35,8 @@ private:
 
     std::vector<double> parameters_;
     std::vector<double> grad_;
-    Batch input_;
+
+    Tensor input_;
 };
 
 #endif //MLP_LINEARLAYER_H

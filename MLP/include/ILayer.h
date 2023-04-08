@@ -5,15 +5,15 @@
 #ifndef MLP_ILAYER_H
 #define MLP_ILAYER_H
 
-#include "Batch.h"
+#include "Tensor.h"
 #include <vector>
 
 class ILayer {
 public:
 
-    virtual Batch forward(Batch&& input) = 0;
+    virtual Tensor forward(Tensor&& input) = 0;
 
-    virtual Batch backward(const Batch& output) = 0;
+    virtual Tensor backward(const Tensor& output) = 0;
 
     virtual std::vector<double>& getParametersGradient() = 0;
 

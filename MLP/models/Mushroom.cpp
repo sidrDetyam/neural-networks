@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "Batch.h"
+#include "Tensor.h"
 #include <cstring>
 #include <random>
 #include "Model.h"
@@ -25,7 +25,7 @@ using namespace csv;
 
 using data_t = std::vector<std::pair<std::vector<double>, int>>;
 
-std::vector<std::pair<std::vector<double>, int>> load_data(){
+static std::vector<std::pair<std::vector<double>, int>> load_data(){
 
     std::vector<std::pair<std::vector<double>, int>> data;
 
@@ -56,10 +56,10 @@ std::pair<data_t, data_t> split(data_t data, double train_fraction = 0.8){
 }
 
 
-using batch_label_t = std::pair<Batch, std::vector<int>>;
+using batch_label_t = std::pair<Tensor, std::vector<int>>;
 
 std::vector<batch_label_t> get_batches(const data_t &data, int bsize){
-    Batch batch(bsize, {45});
+    Tensor batch({static_cast<size_t>(bsize), 45});
     std::vector<int> classes(bsize);
     int pos = 0;
 
@@ -87,31 +87,15 @@ LinearLayer* linearLayerCreator(size_t input, size_t output){
 }
 
 
-//Model getMushModel(){
-//
-//    std::vector<std::unique_ptr<ILayer>> layers;
-//    layers.emplace_back(linearLayerCreator(45, 45));
-//    layers.emplace_back(new ReLU());
-//    layers.emplace_back(linearLayerCreator(45, 16));
-//    layers.emplace_back(new ReLU());
-//    layers.emplace_back(linearLayerCreator(16, 8));
-//    layers.emplace_back(new ReLU());
-//    layers.emplace_back(linearLayerCreator(8, 2));
-//
-//    Model model(std::move(layers));
-//
-//    return model;
-//}
-
 Model getMushModel2(){
     std::vector<std::unique_ptr<ILayer>> layers;
     layers.emplace_back(linearLayerCreator(45, 22));
-    layers.emplace_back(new ReLU());
+    layers.emplace_back(new ReLU(CpuBlas::of()));
     layers.emplace_back(linearLayerCreator(22, 11));
-    layers.emplace_back(new ReLU());
+    layers.emplace_back(new ReLU(CpuBlas::of()));
     layers.emplace_back(linearLayerCreator(11, 2));
 
-    SgdOptimizerCreator sgd_creator(0.9, 0.1, std::make_shared<CpuBlas>());
+    SgdOptimizerCreator sgd_creator(0.95, 0.05, std::make_shared<CpuBlas>());
 
     Model model(std::move(layers), std::make_unique<SgdOptimizerCreator>(std::move(sgd_creator)));
 
@@ -121,16 +105,16 @@ Model getMushModel2(){
 
 enum CONSTS{
     BATCH_SIZE = 64,
-    EPOCHS = 50
+    EPOCHS = 10
 };
 
 
-std::pair<double, double> validate(Model& model, IClassificationLostFunction& loss, const std::vector<batch_label_t>& test){
+std::pair<double, double> loss_accuracy(Model& model, IClassificationLostFunction& loss, const std::vector<batch_label_t>& test){
     double err = 0;
     int correct = 0;
 
     for(const auto & batch : test){
-        Batch b = batch.first;
+        Tensor b = batch.first;
         auto out = model.forward(std::move(b));
         auto l = loss.apply(out, batch.second);
 
@@ -147,9 +131,8 @@ std::pair<double, double> validate(Model& model, IClassificationLostFunction& lo
 
 
 int main() {
-
     auto data = load_data();
-    auto train_test = split(data, 0.8);
+    auto train_test = split(data, 0.7);
     auto train_batches = get_batches(train_test.first, BATCH_SIZE);
     auto test_batches = get_batches(train_test.first, BATCH_SIZE);
 
@@ -162,7 +145,7 @@ int main() {
         double err = 0;
 
         for(const auto & batch : train_batches){
-            Batch b = batch.first;
+            Tensor b = batch.first;
             auto out = model.forward(std::move(b));
             auto l = loss.apply(out, batch.second);
             model.backward(l.second);
@@ -170,14 +153,14 @@ int main() {
 
             err += l.first;
 
-            auto bruh = validate(model, loss, test_batches);
-            cout << bruh.first << " " << bruh.second << " " << endl;
-            sleep(1);
+//            auto bruh = loss_accuracy(model, loss, test_batches);
+//            cout << bruh.first << " " << bruh.second << " " << endl;
+//            sleep(1);
         }
 
-        auto val = validate(model, loss, test_batches);
+        auto val = loss_accuracy(model, loss, test_batches);
         cout << e << " " << err / (double)BATCH_SIZE << " " << val.first << " " << val.second <<
-             " " << validate(model, loss, all_batches).second << endl;
+             " " << loss_accuracy(model, loss, all_batches).second << endl;
         sleep(1);
     }
 

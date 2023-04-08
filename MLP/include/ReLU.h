@@ -7,20 +7,24 @@
 
 #include "ILayer.h"
 #include <vector>
+#include "IBlas.h"
 
 class ReLU : public ILayer{
 public:
-    Batch forward(Batch &&input) override;
+    explicit ReLU(std::unique_ptr<IBlas>&& blas);
 
-    Batch backward(const Batch &output) override;
+    Tensor forward(Tensor &&input) override;
+
+    Tensor backward(const Tensor &output) override;
 
     std::vector<double> &getParametersGradient() override;
 
     std::vector<double> &getParameters() override;
 
 private:
-    Batch mask_;
+    Tensor mask_;
     std::vector<double> fiction_grad_;
+    std::unique_ptr<IBlas> blas_;
 };
 
 

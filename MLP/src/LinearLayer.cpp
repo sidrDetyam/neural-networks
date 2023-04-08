@@ -4,7 +4,7 @@
 
 #include <utility>
 
-#include "Batch.h"
+#include "Tensor.h"
 #include "LinearLayer.h"
 #include "Utils.h"
 
@@ -27,10 +27,10 @@ LinearLayer::LinearLayer(size_t input_size, size_t output_size,
     std::copy(bias.begin(), bias.end(), delimiter);
 }
 
-Batch LinearLayer::forward(Batch &&input) {
+Tensor LinearLayer::forward(Tensor &&input) {
 
     ASSERT(input.getFeatureSize() == input_size_);
-    Batch output(input.getBsize(), {output_size_});
+    Tensor output({input.getBsize(), output_size_});
 
     for (size_t i = 0; i < output.getBsize(); ++i) {
         memcpy(output[i], getBPart(), output_size_ * sizeof(double));
@@ -43,10 +43,10 @@ Batch LinearLayer::forward(Batch &&input) {
     return output;
 }
 
-Batch LinearLayer::backward(const Batch &grad_output) {
+Tensor LinearLayer::backward(const Tensor &grad_output) {
 
     ASSERT(grad_output.getBsize() == input_.getBsize() && grad_output.getFeatureSize() == output_size_);
-    Batch grad_in(grad_output.getBsize(), {input_size_});
+    Tensor grad_in(input_.get_shape());
 
     blas_->dgemm(grad_output[0], parameters_.data(), false, false, grad_in[0],
                  (int) grad_output.getBsize(), (int) input_size_, (int) output_size_, 0);

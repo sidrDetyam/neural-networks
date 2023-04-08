@@ -5,13 +5,13 @@
 #ifndef MLP_ICLASSIFICATIONLOSSFUNCTION_H
 #define MLP_ICLASSIFICATIONLOSSFUNCTION_H
 
-#include "Batch.h"
+#include "Tensor.h"
 #include <vector>
 
 class IClassificationLostFunction{
 public:
-    virtual std::pair<double, Batch> apply(const Batch& batch,
-                                           const std::vector<int>& one_hot) = 0;
+    virtual std::pair<double, Tensor> apply(const Tensor& batch,
+                                            const std::vector<int>& one_hot) = 0;
 
     virtual ~IClassificationLostFunction() = default;
 };

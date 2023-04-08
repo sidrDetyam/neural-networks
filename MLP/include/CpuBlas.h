@@ -25,10 +25,14 @@ public:
 
     void scale(double *a, int n, double scale) override;
 
-    void daxpby(int n, double *a, double alpha, double *b, double beta) override;
+    void daxpby(int n, const double *a, double alpha, double *b, double beta) override;
 
     void dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b, int m, int n, int k, double alpha,
                     const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) override;
+
+    void element_wise_mult(int n, const double *a, const double *b, double *c) override;
+
+    void convolve(const double *A, const double *W, double *C, int N, int M, int R, int S, double beta) override;
 };
 
 

@@ -5,10 +5,10 @@
 #include "Utils.h"
 #include <cmath>
 
-std::pair<double, Batch> CrossEntropyLoss::apply(const Batch &batch, const std::vector<int> &one_hot) {
+std::pair<double, Tensor> CrossEntropyLoss::apply(const Tensor &batch, const std::vector<int> &one_hot) {
 
     ASSERT(one_hot.size() == batch.getBsize());
-    Batch softMaxBatch = softMax(batch);
+    Tensor softMaxBatch = softMax(batch);
 
     double loss = 0.;
     for (size_t i=0; i<batch.getBsize(); ++i){
@@ -19,9 +19,9 @@ std::pair<double, Batch> CrossEntropyLoss::apply(const Batch &batch, const std::
     return {loss, std::move(softMaxBatch)};
 }
 
-Batch CrossEntropyLoss::softMax(const Batch &batch) {
+Tensor CrossEntropyLoss::softMax(const Tensor &batch) {
 
-    Batch softMaxBatch = batch;
+    Tensor softMaxBatch = batch;
     for(int i=0; i<batch.getBsize(); ++i){
         double mx = *std::max_element(batch[i], batch[i+1]);
         for(int j=0; j<batch.getFeatureSize(); ++j){
