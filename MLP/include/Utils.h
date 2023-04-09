@@ -8,11 +8,13 @@
 #include <iostream>
 #include <vector>
 
-#define ASSERT(cond__) \
+//        std::cerr << #cond__ << std::endl;     \
+//        std::abort(); \
+
+#define ASSERT_RE(cond__) \
 do{\
     if(!(cond__)){     \
-        std::cerr << #cond__ << std::endl;     \
-        std::abort(); \
+        throw std::runtime_error(#cond__); \
     } \
 }while(0)
 

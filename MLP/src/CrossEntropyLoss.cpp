@@ -7,7 +7,7 @@
 
 std::pair<double, Tensor> CrossEntropyLoss::apply(const Tensor &batch, const std::vector<int> &one_hot) {
 
-    ASSERT(one_hot.size() == batch.getBsize());
+    ASSERT_RE(one_hot.size() == batch.getBsize());
     Tensor softMaxBatch = softMax(batch);
 
     double loss = 0.;

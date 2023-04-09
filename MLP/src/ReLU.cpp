@@ -25,7 +25,7 @@ Tensor ReLU::forward(Tensor &&input) {
 
 Tensor ReLU::backward(const Tensor &output) {
 
-    ASSERT(mask_.isSameShape(output));
+    ASSERT_RE(mask_.isSameShape(output));
 
     Tensor input(mask_.get_shape());
     blas_->element_wise_mult((int)(input.getBsize() * input.getFeatureSize()),

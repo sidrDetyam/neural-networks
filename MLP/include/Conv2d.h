@@ -26,6 +26,8 @@ public:
     std::vector<double> &getParameters() override;
 
 private:
+    [[nodiscard]] std::vector<size_t> get_output_shape(const std::vector<size_t>& input_shape) const;
+
     std::unique_ptr<IBlas> blas_;
     Tensor input_copy_;
     size_t input_channels_;

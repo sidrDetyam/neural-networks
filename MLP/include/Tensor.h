@@ -37,12 +37,17 @@ public:
 
     [[nodiscard]] double* get_ptr(const std::vector<size_t>& coord);
 
+    [[nodiscard]] const double* get_ptr(const std::vector<size_t>& coord) const;
+
     [[nodiscard]] tdata_t& data();
+
+    [[nodiscard]] const tdata_t& data() const;
 
 private:
     tshape_t shape_;
     tdata_t data_;
 };
 
+std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
 
 #endif //MLP_TENSOR_H

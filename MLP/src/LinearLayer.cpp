@@ -18,7 +18,7 @@ LinearLayer::LinearLayer(size_t input_size, size_t output_size,
         parameters_((input_size + 1) * output_size),
         grad_((input_size + 1) * output_size){
 
-    ASSERT(input_size >= 0 && output_size >= 0 && input_size * output_size == weights.size() &&
+    ASSERT_RE(input_size >= 0 && output_size >= 0 && input_size * output_size == weights.size() &&
            output_size == bias.size());
 
     const auto delimiter =
@@ -29,7 +29,7 @@ LinearLayer::LinearLayer(size_t input_size, size_t output_size,
 
 Tensor LinearLayer::forward(Tensor &&input) {
 
-    ASSERT(input.getFeatureSize() == input_size_);
+    ASSERT_RE(input.getFeatureSize() == input_size_);
     Tensor output({input.getBsize(), output_size_});
 
     for (size_t i = 0; i < output.getBsize(); ++i) {
@@ -45,7 +45,7 @@ Tensor LinearLayer::forward(Tensor &&input) {
 
 Tensor LinearLayer::backward(const Tensor &grad_output) {
 
-    ASSERT(grad_output.getBsize() == input_.getBsize() && grad_output.getFeatureSize() == output_size_);
+    ASSERT_RE(grad_output.getBsize() == input_.getBsize() && grad_output.getFeatureSize() == output_size_);
     Tensor grad_in(input_.get_shape());
 
     blas_->dgemm(grad_output[0], parameters_.data(), false, false, grad_in[0],

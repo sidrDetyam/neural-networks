@@ -19,14 +19,14 @@ void SgdOptimizer::step() {
 
     std::vector<double>& grad = layer_->getParametersGradient();
     std::vector<double>& params = layer_->getParameters();
-    ASSERT(grad.size() == layer_->getParameters().size());
+    ASSERT_RE(grad.size() == layer_->getParameters().size());
 
     if(isFirst_){
         isFirst_ = false;
         m_ = grad;
     }
     else{
-        ASSERT(grad.size() == m_.size());
+        ASSERT_RE(grad.size() == m_.size());
         blas_->daxpby((int) grad.size(), grad.data(), (1 - m_coff_), m_.data(), m_coff_);
     }
 
