@@ -29,7 +29,7 @@ static std::vector<std::pair<std::vector<double>, int>> load_data(){
 
     std::vector<std::pair<std::vector<double>, int>> data;
 
-    CSVReader reader("/home/sidr/PycharmProjects/neural-networks/MLP/data/mush2.csv");
+    CSVReader reader("/home/sidr/PycharmProjects/neural-networks/Torch4ThePoorest/data/mush2.csv");
     for(auto& row : reader){
         std::vector<double> v;
         for(auto & c : row){
