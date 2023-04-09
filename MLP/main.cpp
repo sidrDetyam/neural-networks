@@ -42,17 +42,28 @@ int main() {
 
     Conv2d conv2D(2, 2, 3, 3, make_unique<CpuBlas>(), w);
 
+    auto a_ = a;
+    for(auto i : a){
+        a_.push_back(i);
+    }
+
     Tensor input(a, {1, 2, 6, 5});
 
     Tensor output = conv2D.forward(std::move(input));
 
+    Tensor loss(std::vector<double>(24, 1.), {1, 2, 4, 3});
+    Tensor g = conv2D.backward(loss);
+
+    //cout << Tensor(conv2D.getParametersGradient(), {2, 2, 3, 3}) << endl;
+    cout << g << endl;
+
 //    vector<double> c(4 * 3);
 //    blas.convolve(a.data(), w.data(), c.data(), 6, 5, 3, 3, 0);
 
-    for (auto i: output.get_shape()) {
-        cout << i << " ";
-    }
-    cout << endl;
-
-    cout << output << endl;
+//    for (auto i: output.get_shape()) {
+//        cout << i << " ";
+//    }
+//    cout << endl;
+//
+//    cout << output << endl;
 }

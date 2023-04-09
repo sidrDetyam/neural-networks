@@ -100,6 +100,15 @@ const tdata_t &Tensor::data() const {
     return data_;
 }
 
+void Tensor::map(const std::function<double(double)> &func) {
+    std::for_each(data_.begin(), data_.end(),
+                  [&func](double &i) { i = func(i); });
+}
+
+size_t Tensor::size() const {
+    return getBsize() * getFeatureSize();
+}
+
 static void helper(std::ostream &os, const Tensor &tensor, const std::vector<size_t> &coord = {}, size_t dim = 0) {
     if (dim + 1 == tensor.get_shape().size()) {
         for (size_t i = 0; i < tensor.get_shape()[dim]; ++i) {

@@ -9,6 +9,7 @@
 #include <cstring>
 #include <cassert>
 #include <vector>
+#include <functional>
 
 using tdata_t = std::vector<double>;
 using tshape_t = std::vector<size_t>;
@@ -31,6 +32,8 @@ public:
 
     [[nodiscard]] size_t getFeatureSize() const;
 
+    [[nodiscard]] size_t size() const;
+
     [[nodiscard]] bool isSameShape(const Tensor& other) const;
 
     [[maybe_unused]] void reshape(tshape_t new_shape);
@@ -42,6 +45,8 @@ public:
     [[nodiscard]] tdata_t& data();
 
     [[nodiscard]] const tdata_t& data() const;
+
+    void map(const std::function<double(double)>& func);
 
 private:
     tshape_t shape_;

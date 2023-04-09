@@ -26,7 +26,7 @@ Tensor Conv2d::forward(Tensor &&input) {
     ASSERT_RE(input_copy_.get_shape()[1] == input_channels_);
     ASSERT_RE(input_copy_.get_shape()[2] >= k1_ && input_copy_.get_shape()[3] >= k2_);
 
-    const std::vector<size_t>& input_shape = input_copy_.get_shape();
+    const std::vector<size_t> &input_shape = input_copy_.get_shape();
     const std::vector<size_t> output_shape = get_output_shape(input_shape);
     Tensor output(output_shape);
 
@@ -36,8 +36,8 @@ Tensor Conv2d::forward(Tensor &&input) {
                 blas_->convolve(input_copy_.get_ptr({b, in_c}),
                                 params_.get_ptr({out_c, in_c}),
                                 output.get_ptr({b, out_c}),
-                                (int)input_shape[2], (int)input_shape[3],
-                                (int)k1_, (int)k2_,
+                                (int) input_shape[2], (int) input_shape[3],
+                                (int) k1_, (int) k2_,
                                 1.);
             }
         }
@@ -47,30 +47,30 @@ Tensor Conv2d::forward(Tensor &&input) {
 }
 
 //TODO
-static double tmp_submatrix_sum(const double* const a,
+static double tmp_submatrix_sum(const double *const a,
                                 const size_t n,
                                 const size_t m,
-                                const size_t lda){
+                                const size_t lda) {
 
     double res = 0.;
-    for(size_t i=0; i<n; ++i){
-        for(size_t j=0; j<m; ++j){
-            res += a[i*lda + j];
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < m; ++j) {
+            res += a[i * lda + j];
         }
     }
 
     return res;
 }
 
-static double matrix_vector_ddot(const double* const a,
+static double matrix_vector_ddot(const double *const a,
                                  const size_t n,
                                  const size_t m,
                                  const size_t lda,
-                                 const double* const v){
+                                 const double *const v) {
     double res = 0.;
-    for(size_t i=0; i<n; ++i){
-        for(size_t j=0; j<m; ++j){
-            res += a[i*lda + j] * v[i*m + j];
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < m; ++j) {
+            res += a[i * lda + j] * v[i * m + j];
         }
     }
     return res;
@@ -79,30 +79,63 @@ static double matrix_vector_ddot(const double* const a,
 Tensor Conv2d::backward(const Tensor &output) {
     ASSERT_RE(output.get_shape() == get_output_shape(input_copy_.get_shape()));
 
-    const auto& is = input_copy_.get_shape();
-    const auto& os = output.get_shape();
+    const auto &is = input_copy_.get_shape();
+    const auto &os = output.get_shape();
     //const std::vector<double> e_((is[2] - k1_ + 1) * (is[3] - k2_ + 1), 1.);
 
     //bruuuh
-    for(size_t c_out=0; c_out < output_channels_; ++c_out){
-        for(size_t c_in=0; c_in < input_channels_; ++c_in){
-            double* const base_grad = grad_.get_ptr({c_out, c_in});
-            const double* const base_input = input_copy_.get_ptr({0, c_in});
-            const double* const base_output = output.get_ptr({0, c_out});
+    grad_.map([](double _) { return 0.; });
 
-            for(size_t k1=0; k1<k1_; ++k1){
-                for(size_t k2=0; k2<k2_; ++k2){
-                    base_grad[k1*k2_ + k2] = matrix_vector_ddot(base_input + is[3]*k1 +k2,
-                                                                os[2],
-                                                                os[3],
-                                                                is[3],
-                                                                base_output);
+    for (size_t b = 0; b < is[0]; ++b) {
+        for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+            for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
+                double *const base_grad = grad_.get_ptr({c_out, c_in});
+                const double *const base_input = input_copy_.get_ptr({b, c_in});
+                const double *const base_output = output.get_ptr({b, c_out});
+
+                for (size_t k1 = 0; k1 < k1_; ++k1) {
+                    for (size_t k2 = 0; k2 < k2_; ++k2) {
+                        base_grad[k1 * k2_ + k2] += matrix_vector_ddot(base_input + is[3] * k1 + k2,
+                                                                      os[2],
+                                                                      os[3],
+                                                                      is[3],
+                                                                      base_output);
+                    }
+                }
+            }
+        }
+    }
+    blas_->scale(grad_[0], (int)grad_.size(), 1. / (double)is[0]);
+
+    input_copy_.map([](double _){return 0.;});
+
+    for(size_t b=0; b < is[0]; ++b) {
+        for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
+            for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+                double *const base_input = input_copy_.get_ptr({b, c_in});
+                const double *const base_output = output.get_ptr({b, c_out});
+                const double *const base_params = params_.get_ptr({c_out, c_in});
+
+                for (int i = 0; i < is[2]; ++i) {
+                    for (int j = 0; j < is[3]; ++j) {
+
+                        const int r_d = std::max(0, i - (int) k1_ + 1);
+                        const int r_u = std::min(i, (int) is[2] - (int) k1_);
+                        const int c_d = std::max(0, j - (int) k2_ + 1);
+                        const int c_u = std::min(j, (int) is[3] - (int) k2_);
+
+                        for (int r = r_d; r <= r_u; ++r) {
+                            for (int c = c_d; c <= c_u; ++c) {
+                                base_input[i*is[3] + j] += base_params[(i-r)*k2_ + (j-c)] * base_output[r*os[3] + c];
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    return Tensor();
+    return std::move(input_copy_);
 }
 
 std::vector<double> &Conv2d::getParametersGradient() {
