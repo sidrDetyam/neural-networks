@@ -20,6 +20,6 @@ add_executable(Torch4ThePoorest include/ILayer.h include/Tensor.h src/Tensor.cpp
 
         main.cpp
         #models/Mushroom.cpp
-        )
+        include/AvgPolling.h src/AvgPolling.cpp)
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov)
 #target_link_libraries(Torch4ThePoorest

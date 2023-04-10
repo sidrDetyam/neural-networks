@@ -38,17 +38,19 @@ public:
 
     [[maybe_unused]] void reshape(tshape_t new_shape);
 
-    [[nodiscard]] double* get_ptr(const std::vector<size_t>& coord);
+    [[nodiscard]] double& operator()(const std::vector<size_t>& coord);
 
-    [[nodiscard]] const double* get_ptr(const std::vector<size_t>& coord) const;
+    [[nodiscard]] const double& operator()(const std::vector<size_t>& coord) const;
 
     [[nodiscard]] tdata_t& data();
 
-    [[nodiscard]] const tdata_t& data() const;
+    [[maybe_unused]] [[nodiscard]] const tdata_t& data() const;
 
     void map(const std::function<double(double)>& func);
 
 private:
+    size_t get_element_index(const std::vector<size_t> &coord) const;
+
     tshape_t shape_;
     tdata_t data_;
 };

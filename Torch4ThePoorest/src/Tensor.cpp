@@ -62,41 +62,11 @@ bool Tensor::isSameShape(const Tensor &other) const {
     shape_ = std::move(new_shape);
 }
 
-const double *Tensor::get_ptr(const std::vector<size_t> &coord) const {
-    ASSERT_RE(!coord.empty() && coord.size() <= shape_.size());
-    const double *ptr = data_.data();
-    size_t sz = getFeatureSize();
-
-    for (size_t i = 0; i < coord.size(); ++i) {
-        ptr += sz * coord[i];
-        if (i + 1 != coord.size()) {
-            sz /= shape_[i + 1];
-        }
-    }
-
-    return ptr;
-}
-
-double *Tensor::get_ptr(const std::vector<size_t> &coord) {
-    ASSERT_RE(!coord.empty() && coord.size() <= shape_.size());
-    double *ptr = data_.data();
-    size_t sz = getFeatureSize();
-
-    for (size_t i = 0; i < coord.size(); ++i) {
-        ptr += sz * coord[i];
-        if (i + 1 != coord.size()) {
-            sz /= shape_[i + 1];
-        }
-    }
-
-    return ptr;
-}
-
 tdata_t &Tensor::data() {
     return data_;
 }
 
-const tdata_t &Tensor::data() const {
+[[maybe_unused]] const tdata_t &Tensor::data() const {
     return data_;
 }
 
@@ -109,12 +79,35 @@ size_t Tensor::size() const {
     return getBsize() * getFeatureSize();
 }
 
+size_t Tensor::get_element_index(const std::vector<size_t> &coord) const {
+    ASSERT_RE(!coord.empty() && coord.size() <= shape_.size());
+    size_t ind = 0;
+    size_t sz = getFeatureSize();
+
+    for (size_t i = 0; i < coord.size(); ++i) {
+        ind += sz * coord[i];
+        if (i + 1 != coord.size()) {
+            sz /= shape_[i + 1];
+        }
+    }
+
+    return ind;
+}
+
+const double &Tensor::operator()(const std::vector<size_t> &coord) const {
+    return data_[get_element_index(coord)];
+}
+
+double &Tensor::operator()(const std::vector<size_t> &coord) {
+    return data_[get_element_index(coord)];
+}
+
 static void helper(std::ostream &os, const Tensor &tensor, const std::vector<size_t> &coord = {}, size_t dim = 0) {
     if (dim + 1 == tensor.get_shape().size()) {
         for (size_t i = 0; i < tensor.get_shape()[dim]; ++i) {
             auto coord_ = coord;
             coord_.push_back(i);
-            os << *tensor.get_ptr(coord_);
+            os << tensor(coord_);
             if (i + 1 != tensor.get_shape()[dim]) {
                 os << ", ";
             }

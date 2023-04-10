@@ -33,9 +33,9 @@ Tensor Conv2d::forward(Tensor &&input) {
     for (size_t b = 0; b < output_shape[0]; ++b) {
         for (size_t out_c = 0; out_c < output_channels_; ++out_c) {
             for (size_t in_c = 0; in_c < input_channels_; ++in_c) {
-                blas_->convolve(input_copy_.get_ptr({b, in_c}),
-                                params_.get_ptr({out_c, in_c}),
-                                output.get_ptr({b, out_c}),
+                blas_->convolve(&input_copy_({b, in_c}),
+                                &params_({out_c, in_c}),
+                                &output({b, out_c}),
                                 (int) input_shape[2], (int) input_shape[3],
                                 (int) k1_, (int) k2_,
                                 1.);
@@ -47,20 +47,20 @@ Tensor Conv2d::forward(Tensor &&input) {
 }
 
 //TODO
-static double tmp_submatrix_sum(const double *const a,
-                                const size_t n,
-                                const size_t m,
-                                const size_t lda) {
-
-    double res = 0.;
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < m; ++j) {
-            res += a[i * lda + j];
-        }
-    }
-
-    return res;
-}
+//static double tmp_submatrix_sum(const double *const a,
+//                                const size_t n,
+//                                const size_t m,
+//                                const size_t lda) {
+//
+//    double res = 0.;
+//    for (size_t i = 0; i < n; ++i) {
+//        for (size_t j = 0; j < m; ++j) {
+//            res += a[i * lda + j];
+//        }
+//    }
+//
+//    return res;
+//}
 
 static double matrix_vector_ddot(const double *const a,
                                  const size_t n,
@@ -89,9 +89,9 @@ Tensor Conv2d::backward(const Tensor &output) {
     for (size_t b = 0; b < is[0]; ++b) {
         for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
             for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
-                double *const base_grad = grad_.get_ptr({c_out, c_in});
-                const double *const base_input = input_copy_.get_ptr({b, c_in});
-                const double *const base_output = output.get_ptr({b, c_out});
+                double *const base_grad = &grad_({c_out, c_in});
+                const double *const base_input = &input_copy_({b, c_in});
+                const double *const base_output = &output({b, c_out});
 
                 for (size_t k1 = 0; k1 < k1_; ++k1) {
                     for (size_t k2 = 0; k2 < k2_; ++k2) {
@@ -112,9 +112,9 @@ Tensor Conv2d::backward(const Tensor &output) {
     for(size_t b=0; b < is[0]; ++b) {
         for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
             for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
-                double *const base_input = input_copy_.get_ptr({b, c_in});
-                const double *const base_output = output.get_ptr({b, c_out});
-                const double *const base_params = params_.get_ptr({c_out, c_in});
+                double *const base_input = &input_copy_({b, c_in});
+                const double *const base_output = &output({b, c_out});
+                const double *const base_params = &params_({c_out, c_in});
 
                 for (int i = 0; i < is[2]; ++i) {
                     for (int j = 0; j < is[3]; ++j) {
