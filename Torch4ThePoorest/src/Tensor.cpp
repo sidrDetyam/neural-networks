@@ -135,6 +135,11 @@ static void helper(std::ostream &os, const Tensor &tensor, const std::vector<siz
 }
 
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
+    os << "Tensor(";
+    for(size_t i : tensor.get_shape()){
+        os << i << ", ";
+    }
+    os << ")";
     helper(os, tensor);
     return os;
 }

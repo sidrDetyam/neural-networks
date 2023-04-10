@@ -54,16 +54,5 @@ int main() {
     Tensor loss(std::vector<double>(24, 1.), {1, 2, 4, 3});
     Tensor g = conv2D.backward(loss);
 
-    //cout << Tensor(conv2D.getParametersGradient(), {2, 2, 3, 3}) << endl;
     cout << g << endl;
-
-//    vector<double> c(4 * 3);
-//    blas.convolve(a.data(), w.data(), c.data(), 6, 5, 3, 3, 0);
-
-//    for (auto i: output.get_shape()) {
-//        cout << i << " ";
-//    }
-//    cout << endl;
-//
-//    cout << output << endl;
 }

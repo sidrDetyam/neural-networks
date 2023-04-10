@@ -21,6 +21,8 @@ do{\
 
 void random_vector_gauss(std::vector<double>& v, double mean, double dev);
 
-std::vector<double> random_vector_gauss(size_t n, double mean, double dev);
+[[maybe_unused]] std::vector<double> random_vector_gauss(size_t n, double mean, double dev);
+
+[[maybe_unused]] bool is_same_vectors(const std::vector<double>& a, const std::vector<double>& b, double eps);
 
 #endif //MLP_UTILS_H

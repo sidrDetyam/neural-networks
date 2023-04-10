@@ -49,7 +49,7 @@ public:
     void map(const std::function<double(double)>& func);
 
 private:
-    size_t get_element_index(const std::vector<size_t> &coord) const;
+    [[nodiscard]] size_t get_element_index(const std::vector<size_t> &coord) const;
 
     tshape_t shape_;
     tdata_t data_;
