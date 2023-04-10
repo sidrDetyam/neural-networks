@@ -56,8 +56,8 @@ namespace nn {
         tshape_t shape_;
         tdata_t data_;
     };
-
-    std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
 }
+
+std::ostream &operator<<(std::ostream &os, const nn::Tensor &tensor);
 
 #endif //MLP_TENSOR_H

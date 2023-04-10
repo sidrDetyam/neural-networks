@@ -12,10 +12,10 @@
 
 namespace nn {
 
-    class Model {
+    class Sequential {
     public:
-        explicit Model(std::vector<std::unique_ptr<ILayer>> layers,
-                       std::unique_ptr<IOptimizerCreator> &&creator);
+        explicit Sequential(std::vector<std::unique_ptr<ILayer>> layers,
+                            std::unique_ptr<IOptimizerCreator> &&creator);
 
         Tensor forward(Tensor &&batch);
 

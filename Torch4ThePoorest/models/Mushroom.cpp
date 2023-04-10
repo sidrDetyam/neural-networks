@@ -6,7 +6,7 @@
 #include "Tensor.h"
 #include <cstring>
 #include <random>
-#include "Model.h"
+#include "Sequential.h"
 #include "Utils.h"
 #include "ReLU.h"
 #include "CrossEntropyLoss.h"
