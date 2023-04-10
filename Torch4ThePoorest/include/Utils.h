@@ -25,9 +25,6 @@ void random_vector_gauss(std::vector<double> &v, double mean, double dev);
 
 [[maybe_unused]] bool is_same_vectors(const std::vector<double> &a, const std::vector<double> &b, double eps);
 
-bool is_same_cnt(const std::vector<size_t> &a, const std::vector<size_t> &b) {
-    return std::reduce(a.begin(), a.end(), 1ul, std::multiplies<>()) ==
-           std::reduce(b.begin(), b.end(), 1ul, std::multiplies<>());
-}
+bool is_same_cnt(const std::vector<size_t> &a, const std::vector<size_t> &b);
 
 #endif //MLP_UTILS_H

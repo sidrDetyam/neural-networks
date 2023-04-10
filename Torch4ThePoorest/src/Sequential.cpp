@@ -27,12 +27,14 @@ Tensor Sequential::forward(Tensor &&batch) {
     return out;
 }
 
-void Sequential::backward(const Tensor &output) {
+Tensor Sequential::backward(const Tensor &output) {
 
     Tensor b = output;
     for(auto & layer : std::ranges::reverse_view(layers_)){
         b = layer->backward(b);
     }
+
+    return b;
 }
 
 void Sequential::step() {

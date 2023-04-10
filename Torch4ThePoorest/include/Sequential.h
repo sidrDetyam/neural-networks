@@ -19,7 +19,7 @@ namespace nn {
 
         Tensor forward(Tensor &&batch);
 
-        void backward(const Tensor &output);
+        Tensor backward(const Tensor &output);
 
         void step();
 

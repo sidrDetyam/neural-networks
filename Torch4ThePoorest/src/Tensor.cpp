@@ -56,7 +56,7 @@ bool Tensor::isSameShape(const Tensor &other) const {
 
     size_t cnt = new_shape.empty() ? 0 : 1;
     for (auto i: new_shape) {
-        ASSERT_RE(i > 1);
+        ASSERT_RE(i >= 1);
         cnt *= i;
     }
     ASSERT_RE(cnt == getBsize() * getFeatureSize());
