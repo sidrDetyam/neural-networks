@@ -7,6 +7,7 @@
 #include <cmath>
 
 using namespace std;
+using namespace nn;
 
 TEST(Foo, Bar){
     CrossEntropyLoss loss;

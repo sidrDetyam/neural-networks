@@ -10,21 +10,23 @@
 #include <ILayer.h>
 #include "IOptimizerCreator.h"
 
+namespace nn {
 
-class Model{
-public:
-    explicit Model(std::vector<std::unique_ptr<ILayer>> layers,
-                   std::unique_ptr<IOptimizerCreator>&& creator);
+    class Model {
+    public:
+        explicit Model(std::vector<std::unique_ptr<ILayer>> layers,
+                       std::unique_ptr<IOptimizerCreator> &&creator);
 
-    Tensor forward(Tensor&& batch);
+        Tensor forward(Tensor &&batch);
 
-    void backward(const Tensor& output);
+        void backward(const Tensor &output);
 
-    void step();
+        void step();
 
-private:
-    std::vector<std::unique_ptr<ILayer>> layers_;
-    std::vector<std::unique_ptr<IOptimizer>> optimizers_;
-};
+    private:
+        std::vector<std::unique_ptr<ILayer>> layers_;
+        std::vector<std::unique_ptr<IOptimizer>> optimizers_;
+    };
+}
 
 #endif //MLP_MODEL_H

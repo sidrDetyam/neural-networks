@@ -5,6 +5,8 @@
 #include "Utils.h"
 #include <cmath>
 
+using namespace nn;
+
 std::pair<double, Tensor> CrossEntropyLoss::apply(const Tensor &batch, const std::vector<int> &one_hot) {
 
     ASSERT_RE(one_hot.size() == batch.getBsize());

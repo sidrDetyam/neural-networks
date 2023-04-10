@@ -5,13 +5,16 @@
 #include <utility>
 
 #include "Tensor.h"
-#include "LinearLayer.h"
+#include "Linear.h"
 #include "Utils.h"
 
+using namespace nn;
 
-LinearLayer::LinearLayer(size_t input_size, size_t output_size,
-                         std::vector<double> weights, std::vector<double> bias,
-                         std::unique_ptr<IBlas> &&blas) :
+Linear::Linear(size_t input_size,
+               size_t output_size,
+               std::vector<double> weights,
+               std::vector<double> bias,
+               std::unique_ptr<IBlas> &&blas) :
         input_size_(input_size),
         output_size_(output_size),
         blas_(std::move(blas)),
@@ -27,7 +30,7 @@ LinearLayer::LinearLayer(size_t input_size, size_t output_size,
     std::copy(bias.begin(), bias.end(), delimiter);
 }
 
-Tensor LinearLayer::forward(Tensor &&input) {
+Tensor Linear::forward(Tensor &&input) {
 
     ASSERT_RE(input.getFeatureSize() == input_size_);
     Tensor output({input.getBsize(), output_size_});
@@ -43,7 +46,7 @@ Tensor LinearLayer::forward(Tensor &&input) {
     return output;
 }
 
-Tensor LinearLayer::backward(const Tensor &grad_output) {
+Tensor Linear::backward(const Tensor &grad_output) {
 
     ASSERT_RE(grad_output.getBsize() == input_.getBsize() && grad_output.getFeatureSize() == output_size_);
     Tensor grad_in(input_.get_shape());
@@ -61,18 +64,18 @@ Tensor LinearLayer::backward(const Tensor &grad_output) {
     return grad_in;
 }
 
-std::vector<double> &LinearLayer::getParametersGradient() {
+std::vector<double> &Linear::getParametersGradient() {
     return grad_;
 }
 
-double *LinearLayer::getBPart() {
+double *Linear::getBPart() {
     return parameters_.data() + input_size_ * output_size_;
 }
 
-double *LinearLayer::getGradBPart() {
+double *Linear::getGradBPart() {
     return grad_.data() + input_size_ * output_size_;
 }
 
-std::vector<double> &LinearLayer::getParameters() {
+std::vector<double> &Linear::getParameters() {
     return parameters_;
 }

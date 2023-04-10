@@ -8,11 +8,14 @@
 #include "IOptimizer.h"
 #include "ILayer.h"
 
-class IOptimizerCreator{
-public:
-    virtual IOptimizer* create(ILayer* layer) = 0;
+namespace nn {
 
-    virtual ~IOptimizerCreator() = default;
-};
+    class IOptimizerCreator {
+    public:
+        virtual IOptimizer *create(ILayer *layer) = 0;
+
+        virtual ~IOptimizerCreator() = default;
+    };
+}
 
 #endif //MLP_IOPTIMIZERCREATOR_H

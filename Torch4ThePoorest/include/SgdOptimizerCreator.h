@@ -8,16 +8,19 @@
 #include "IOptimizerCreator.h"
 #include "SgdOptimizer.h"
 
-class SgdOptimizerCreator: public IOptimizerCreator{
-public:
-    explicit SgdOptimizerCreator(double m_coff, double lr, std::shared_ptr<IBlas> blas);
+namespace nn {
 
-    IOptimizer* create(ILayer *layer) override;
+    class SgdOptimizerCreator : public IOptimizerCreator {
+    public:
+        explicit SgdOptimizerCreator(double m_coff, double lr, std::shared_ptr<IBlas> blas);
 
-private:
-    double m_coff_;
-    double lr_;
-    std::shared_ptr<IBlas> blas_;
-};
+        IOptimizer *create(ILayer *layer) override;
+
+    private:
+        double m_coff_;
+        double lr_;
+        std::shared_ptr<IBlas> blas_;
+    };
+}
 
 #endif //MLP_SGDOPTIMIZERCREATOR_H

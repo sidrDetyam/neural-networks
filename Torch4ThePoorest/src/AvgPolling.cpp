@@ -4,6 +4,8 @@
 //
 // Created by sidr on 09.04.23.
 //
+using namespace nn;
+
 Tensor AvgPolling::forward(Tensor &&input) {
     input_ = std::move(input);
     const auto &is = input_.get_shape();

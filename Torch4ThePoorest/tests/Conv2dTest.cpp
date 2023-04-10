@@ -9,6 +9,7 @@
 #include "Utils.h"
 
 using namespace std;
+using namespace nn;
 
 TEST(Conv2d, bruh) {
 

@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include <random>
 
+
 void random_vector_gauss(std::vector<double> &v, double mean, double dev) {
     std::random_device rd;
     std::mt19937 gen(rd());

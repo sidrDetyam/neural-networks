@@ -7,6 +7,8 @@
 #include "Utils.h"
 #include "CpuBlas.h"
 
+using namespace nn;
+
 SgdOptimizer::SgdOptimizer(ILayer *layer, double m_coff, double lr, std::shared_ptr<IBlas> blas):
         layer_(layer),
         m_coff_(m_coff),

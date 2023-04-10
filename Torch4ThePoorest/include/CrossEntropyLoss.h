@@ -7,11 +7,14 @@
 
 #include "IClassificationLossFunction.h"
 
-class CrossEntropyLoss: public IClassificationLostFunction{
-public:
-    std::pair<double, Tensor> apply(const Tensor &batch, const std::vector<int>& one_hot) override;
+namespace nn {
 
-    static Tensor softMax(const Tensor &batch);
-};
+    class CrossEntropyLoss : public IClassificationLostFunction {
+    public:
+        std::pair<double, Tensor> apply(const Tensor &batch, const std::vector<int> &one_hot) override;
+
+        static Tensor softMax(const Tensor &batch);
+    };
+}
 
 #endif //MLP_CROSSENTROPYLOSS_H

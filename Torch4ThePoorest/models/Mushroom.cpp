@@ -14,13 +14,14 @@
 
 #include <unistd.h>
 
-#include "LinearLayer.h"
+#include "Linear.h"
 #include "CpuBlas.h"
 
 #include "csv.hpp"
 
 using namespace std;
 using namespace csv;
+using namespace nn;
 
 
 using data_t = std::vector<std::pair<std::vector<double>, int>>;

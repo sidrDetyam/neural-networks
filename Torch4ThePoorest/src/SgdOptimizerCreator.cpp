@@ -3,6 +3,9 @@
 //
 // Created by sidr on 26.03.23.
 //
+
+using namespace nn;
+
 IOptimizer* SgdOptimizerCreator::create(ILayer *layer) {
     return new SgdOptimizer(layer, m_coff_, lr_, blas_);
 }

@@ -4,6 +4,7 @@
 #include "Tensor.h"
 #include "Utils.h"
 
+using namespace nn;
 
 Tensor::Tensor(tdata_t data, tshape_t shape) :
         data_(std::move(data)),

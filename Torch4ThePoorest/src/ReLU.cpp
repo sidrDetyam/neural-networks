@@ -6,6 +6,8 @@
 //
 // Created by sidr on 24.03.23.
 //
+using namespace nn;
+
 Tensor ReLU::forward(Tensor &&input) {
 
     if(!mask_.isSameShape(input)){

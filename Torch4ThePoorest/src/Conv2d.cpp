@@ -4,9 +4,13 @@
 //
 // Created by sidr on 26.03.23.
 //
-Conv2d::Conv2d(size_t input_channels,
-               size_t output_channels,
-               size_t k1, size_t k2,
+
+using namespace nn;
+
+Conv2d::Conv2d(const size_t input_channels,
+               const size_t output_channels,
+               const size_t k1,
+               const size_t k2,
                std::unique_ptr<IBlas> blas,
                std::vector<double> params) :
         input_channels_(input_channels),

@@ -6,6 +6,7 @@
 #include <utility>
 #include "CpuBlas.h"
 
+using namespace nn;
 
 Model::Model(std::vector<std::unique_ptr<ILayer>> layers,
              std::unique_ptr<IOptimizerCreator> &&creator):

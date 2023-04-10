@@ -11,50 +11,53 @@
 #include <vector>
 #include <functional>
 
-using tdata_t = std::vector<double>;
-using tshape_t = std::vector<size_t>;
+namespace nn {
 
-class Tensor final {
-public:
-    Tensor() = default;
+    using tdata_t = std::vector<double>;
+    using tshape_t = std::vector<size_t>;
 
-    explicit Tensor(tshape_t shape);
+    class Tensor final {
+    public:
+        Tensor() = default;
 
-    explicit Tensor(tdata_t data, tshape_t shape);
+        explicit Tensor(tshape_t shape);
 
-    double *operator[](size_t i);
+        explicit Tensor(tdata_t data, tshape_t shape);
 
-    const double *operator[](size_t i) const;
+        double *operator[](size_t i);
 
-    [[nodiscard]] const tshape_t & get_shape() const;
+        const double *operator[](size_t i) const;
 
-    [[nodiscard]] size_t getBsize() const;
+        [[nodiscard]] const tshape_t &get_shape() const;
 
-    [[nodiscard]] size_t getFeatureSize() const;
+        [[nodiscard]] size_t getBsize() const;
 
-    [[nodiscard]] size_t size() const;
+        [[nodiscard]] size_t getFeatureSize() const;
 
-    [[nodiscard]] bool isSameShape(const Tensor& other) const;
+        [[nodiscard]] size_t size() const;
 
-    [[maybe_unused]] void reshape(tshape_t new_shape);
+        [[nodiscard]] bool isSameShape(const Tensor &other) const;
 
-    [[nodiscard]] double& operator()(const std::vector<size_t>& coord);
+        [[maybe_unused]] void reshape(tshape_t new_shape);
 
-    [[nodiscard]] const double& operator()(const std::vector<size_t>& coord) const;
+        [[nodiscard]] double &operator()(const std::vector<size_t> &coord);
 
-    [[nodiscard]] tdata_t& data();
+        [[nodiscard]] const double &operator()(const std::vector<size_t> &coord) const;
 
-    [[maybe_unused]] [[nodiscard]] const tdata_t& data() const;
+        [[nodiscard]] tdata_t &data();
 
-    void map(const std::function<double(double)>& func);
+        [[maybe_unused]] [[nodiscard]] const tdata_t &data() const;
 
-private:
-    [[nodiscard]] size_t get_element_index(const std::vector<size_t> &coord) const;
+        void map(const std::function<double(double)> &func);
 
-    tshape_t shape_;
-    tdata_t data_;
-};
+    private:
+        [[nodiscard]] size_t get_element_index(const std::vector<size_t> &coord) const;
 
-std::ostream& operator<<(std::ostream& os, const Tensor& tensor);
+        tshape_t shape_;
+        tdata_t data_;
+    };
+
+    std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
+}
 
 #endif //MLP_TENSOR_H

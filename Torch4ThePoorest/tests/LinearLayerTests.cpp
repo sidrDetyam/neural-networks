@@ -3,11 +3,13 @@
 //
 
 #include "gtest/gtest.h"
-#include "../include/LinearLayer.h"
-#include "../include/CpuBlas.h"
+#include "Linear.h"
+#include "CpuBlas.h"
+
+using namespace nn;
 
 TEST(LL, forward){
-    LinearLayer ll(3, 2, {1., 2., 3., 4., 5, 6}, {11, 22}, CpuBlas::of());
+    Linear ll(3, 2, {1., 2., 3., 4., 5, 6}, {11, 22}, CpuBlas::of());
     Tensor input(Tensor{{1, 2, 3}, {1, 3}});
     auto output = ll.forward(std::move(input));
     ASSERT_EQ(output.getBsize(), 1) << "Incorrect batch size";
@@ -19,7 +21,7 @@ TEST(LL, forward){
 
 
 TEST(LL, backward){
-    LinearLayer ll(3, 2, {1., 2., 3., 4., 5, 6}, {11, 22}, CpuBlas::of());
+    Linear ll(3, 2, {1., 2., 3., 4., 5, 6}, {11, 22}, CpuBlas::of());
     Tensor input({1, 2, 3, 1, 2, 3}, {2, 3});
     ll.forward(std::move(input));
 
