@@ -26,6 +26,7 @@ void SgdOptimizer::step() {
     if(isFirst_){
         isFirst_ = false;
         m_ = grad;
+        //blas_->scale(m_.data(), (int)m_.size(), -lr_);
     }
     else{
         ASSERT_RE(grad.size() == m_.size());

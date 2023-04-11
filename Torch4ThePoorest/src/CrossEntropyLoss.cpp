@@ -39,9 +39,9 @@ Tensor CrossEntropyLoss::softMax(const Tensor &batch) {
 
         for (size_t j = 0; j < batch.getFeatureSize(); ++j) {
             softMaxBatch[i][j] = exp(softMaxBatch[i][j]) / exp_sum;
+            //softMaxBatch[i][j] -= batch[i][j] * 1e-12;
         }
     }
 
     return softMaxBatch;
 }
-

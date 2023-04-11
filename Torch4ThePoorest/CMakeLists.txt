@@ -31,5 +31,5 @@ add_executable(Torch4ThePoorest
         ${tests}
         #main.cpp
         #models/Mushroom.cpp
-        include/CsvDataLoader.h src/CsvDataLoader.cpp models/Lenet5.cpp include/layers/Reshaper.h src/Reshaper.cpp)
+        include/CsvDataLoader.h src/CsvDataLoader.cpp models/Lenet5.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp)
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov)
