@@ -31,6 +31,8 @@ namespace nn {
     private:
         [[nodiscard]] std::vector<size_t> get_output_shape(const std::vector<size_t> &input_shape) const;
 
+        void calculate_params_grad(const Tensor &output);
+
         const std::unique_ptr<IBlas> blas_;
         Tensor input_copy_;
         Tensor buff_;

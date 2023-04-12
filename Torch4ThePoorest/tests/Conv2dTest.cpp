@@ -102,9 +102,10 @@ TEST(Conv2d, fast_forward){
 }
 
 TEST(Conv2d, fast_backward){
-    const size_t in = 6;
-    const size_t out = 16;
-    const size_t w = 12;
+    const size_t in = 1;
+    const size_t out = 6;
+    const size_t w = 28;
+    const size_t h = 28;
     const size_t k = 5;
     const size_t b = 128;
     const auto weights = random_vector_gauss(in * out * k * k, 0, 3);
@@ -112,22 +113,23 @@ TEST(Conv2d, fast_backward){
     Conv2dNaive conv2DNaive(in, out, k, k, make_unique<CpuBlas>(), weights);
     Conv2d conv2D(in, out, k, make_unique<CpuBlas>(), weights);
 
-    Tensor input(xavier_init(b*in*w*(w+10)), {b, in, w, w+10});
-    Tensor l(random_vector_gauss(b*out*(w-k+1)*(w+10 - k + 1), 0, 3), {b, out, w-k+1, w+10-k+1});
+    Tensor input(xavier_init(b*in*w*h), {b, in, h, w});
+    Tensor l(random_vector_gauss(b*out*(w-k+1)*(h - k + 1), 0, 3), {b, out, h-k+1, w-k+1});
 
     Tensor output;
     Tensor output2;
 
+    Tensor g1, g2;
     using namespace chrono;
 
     auto n1 = high_resolution_clock::now();
     output = conv2DNaive.forward(Tensor(input));
-    conv2DNaive.backward(l);
+    g1 = conv2DNaive.backward(l);
     auto n2 = high_resolution_clock::now();
 
     auto f1 = high_resolution_clock::now();
     output2 = conv2D.forward(Tensor(input));
-    conv2D.backward(l);
+    g2 = conv2D.backward(l);
     auto f2 = high_resolution_clock::now();
 
     auto n = duration_cast<microseconds>(n2 - n1).count();
@@ -137,6 +139,7 @@ TEST(Conv2d, fast_backward){
 
     ASSERT_EQ(is_same_vectors(output.data(), output2.data(), 1e-5), true);
     ASSERT_EQ(is_same_vectors(conv2D.getParametersGradient(), conv2DNaive.getParametersGradient(), 1e-5), true);
+    ASSERT_EQ(is_same_vectors(g1.data(), g2.data(), 1e-3), true);
 }
 
 //TEST(Conv2d, speed_forward){

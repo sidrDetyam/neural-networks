@@ -55,7 +55,7 @@ nn::Tensor nn::Conv2d::forward(nn::Tensor &&input) {
     for (size_t b = 0; b < input_shape[0]; ++b) {
         for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
             img2col(&input_copy_({b, c_in}),
-                    input_shape[2], input_shape[3], kernel_,kernel_,
+                    input_shape[2], input_shape[3], kernel_, kernel_,
                     &buff_({c_in}));
         }
 
@@ -73,16 +73,16 @@ nn::Tensor nn::Conv2d::forward(nn::Tensor &&input) {
     return output;
 }
 
-nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
+void Conv2d::calculate_params_grad(const Tensor &output) {
     ASSERT_RE(output.get_shape() == get_output_shape(input_copy_.get_shape()));
 
     const auto &is = input_copy_.get_shape();
     const auto &os = output.get_shape();
 
-    buff_.resize({input_channels_, os[2] * os[3], (is[2]-os[2]+1) * (is[3]-os[3]+1)});
+    buff_.resize({input_channels_, os[2] * os[3], (is[2] - os[2] + 1) * (is[3] - os[3] + 1)});
 
     Tensor params_grad(std::vector<double>(grad_.size()),
-            {output_channels_, input_channels_, kernel_, kernel_});
+                       {output_channels_, input_channels_, kernel_, kernel_});
 
     for (size_t b = 0; b < is[0]; ++b) {
         for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
@@ -92,11 +92,11 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
         }
 
         for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
-            const int m = 1.;
+            const int m = 1;
             const int n = (int) (kernel_ * kernel_);
             const int k = (int) (os[2] * os[3]);
 
-            for(size_t c_in = 0; c_in < input_channels_; ++c_in) {
+            for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
                 blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
                                   m, n, k,
                                   1., &output({b, c_out}), k,
@@ -106,9 +106,82 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
         }
     }
     grad_ = params_grad.data();
-    blas_->scale(&grad_[0], (int)grad_.size(), 1. / (double)is[0]);
+    blas_->scale(&grad_[0], (int) grad_.size(), 1. / (double) is[0]);
+}
 
-    return Tensor();
+
+nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
+    ASSERT_RE(output.get_shape() == get_output_shape(input_copy_.get_shape()));
+    calculate_params_grad(output);
+
+    const auto &is = input_copy_.get_shape();
+    const auto &os = output.get_shape();
+
+    ASSERT_RE(os[2] >= kernel_ && os[3] >= kernel_);
+    const size_t oh_conv = os[2] - kernel_ + 1;
+    const size_t ow_conv = os[3] - kernel_ + 1;
+
+    buff_.resize({output_channels_, kernel_ * kernel_, oh_conv * ow_conv});
+
+    Tensor params(params_,
+                  {output_channels_, input_channels_, kernel_, kernel_});
+
+    input_copy_.map([](double _) { return 0.; });
+    Tensor buff2_({oh_conv, ow_conv});
+
+    for (size_t b = 0; b < is[0]; ++b) {
+        for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+            img2col(&output({b, c_out}),
+                    os[2], os[3], kernel_, kernel_,
+                    &buff_({c_out}));
+
+            for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
+                std::vector<double> reversed_kernel(kernel_ * kernel_);
+                std::memcpy(reversed_kernel.data(), &params({c_out, c_in}), sizeof(double) * kernel_ * kernel_);
+                std::reverse(reversed_kernel.begin(), reversed_kernel.end());
+
+                const int m = 1;
+                const int n = (int) (oh_conv * ow_conv);
+                const int k = (int) (kernel_ * kernel_);
+
+                blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
+                                  m, n, k,
+                                  1., reversed_kernel.data(), k,
+                                  &buff_({c_out}), n, 0,
+                                  &buff2_({0}), n);
+
+                for (size_t i = 0; i < oh_conv; ++i) {
+                    blas_->daxpby((int) ow_conv, &buff2_({i}), 1.,
+                                  &input_copy_({b, c_in, kernel_ - 1 + i, kernel_ - 1}),
+                                  1.);
+                }
+
+                double *const base_input = &input_copy_({b, c_in});
+                const double *const base_output = &output({b, c_out});
+                const double *const base_params = &params({c_out, c_in});
+
+                for (int i = 0; i < is[2]; ++i) {
+                    for (int j = 0; j < is[3]; ++j) {
+                        if ((i < kernel_ - 1 || i > is[2] - kernel_) || ((j < kernel_ - 1 || j > is[3] - kernel_))) {
+                            const int r_d = std::max(0, i - (int) kernel_ + 1);
+                            const int r_u = std::min(i, (int) is[2] - (int) kernel_);
+                            const int c_d = std::max(0, j - (int) kernel_ + 1);
+                            const int c_u = std::min(j, (int) is[3] - (int) kernel_);
+
+                            for (int r = r_d; r <= r_u; ++r) {
+                                for (int c = c_d; c <= c_u; ++c) {
+                                    base_input[i * is[3] + j] +=
+                                            base_params[(i - r) * kernel_ + (j - c)] * base_output[r * os[3] + c];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return input_copy_;
 }
 
 std::vector<double> &nn::Conv2d::getParametersGradient() {
@@ -128,7 +201,7 @@ Conv2d::Conv2d(const size_t input_channels,
         output_channels_(output_channels),
         kernel_(kernel),
         blas_(std::move(blas)),
-        grad_(output_channels * input_channels * kernel * kernel){
+        grad_(output_channels * input_channels * kernel * kernel) {
 
     ASSERT_RE(params.size() == output_channels_ * input_channels_ * kernel_ * kernel_);
     params_ = std::move(params);
