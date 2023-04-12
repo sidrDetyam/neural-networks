@@ -5,7 +5,7 @@
 #include "CpuBlas.h"
 #include <vector>
 #include <iostream>
-#include "Conv2d.h"
+#include "Conv2dNaive.h"
 #include "CsvDataLoader.h"
 #include "Sequential.h"
 #include "Linear.h"
@@ -22,17 +22,17 @@
 nn::Linear *linearLayerCreator(const size_t input,
                                const size_t output) {
     return new nn::Linear(input, output,
-                          random_vector_gauss(input * output, 0, 0.01),
-                          random_vector_gauss(output, 0, 0.01),
+                          xavier_init(input * output),
+                          xavier_init(output),
                           std::make_unique<CpuBlas>());
 }
 
-nn::Conv2d *conv2DCreator(const size_t in_channels,
-                          const size_t out_channels,
-                          const size_t kernel) {
-    return new nn::Conv2d(in_channels, out_channels, kernel, kernel,
-                          CpuBlas::of(),
-                          random_vector_gauss(in_channels * out_channels * kernel * kernel, 0, 1));
+nn::Conv2dNaive *conv2DCreator(const size_t in_channels,
+                               const size_t out_channels,
+                               const size_t kernel) {
+    return new nn::Conv2dNaive(in_channels, out_channels, kernel, kernel,
+                               CpuBlas::of(),
+                               xavier_init(in_channels * out_channels * kernel * kernel));
 }
 
 
@@ -63,12 +63,14 @@ nn::Sequential lenet5_model() {
     layers.emplace_back(new nn::Reshaper({120, 1, 1}, {120}));
 
     layers.emplace_back(linearLayerCreator(120, 84));
-    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
-    layers.emplace_back(new nn::DropoutLayer(0.5));
+    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
+    //layers.emplace_back(new nn::DropoutLayer(0.5));
+    layers.emplace_back(new nn::Tanh());
 
     layers.emplace_back(linearLayerCreator(84, 10));
-    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
-    layers.emplace_back(new nn::DropoutLayer(0.5));
+    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
+    //layers.emplace_back(new nn::DropoutLayer(0.5));
+    layers.emplace_back(new nn::Tanh());
 
     layers.emplace_back(linearLayerCreator(10, 10));
 

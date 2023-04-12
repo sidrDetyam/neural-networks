@@ -1,15 +1,12 @@
 //
-// Created by sidr on 26.03.23.
+// Created by sidr on 12.04.23.
 //
 
-#ifndef MLP_CONV2D_H
-#define MLP_CONV2D_H
+#ifndef TORCH4THEPOOREST_CONV2D_H
+#define TORCH4THEPOOREST_CONV2D_H
 
 #include "ILayer.h"
 #include "IBlas.h"
-
-//TODO stride and padding
-//TODO make it more efficient
 
 namespace nn {
 
@@ -17,10 +14,10 @@ namespace nn {
     public:
         explicit Conv2d(size_t input_channels,
                         size_t output_channels,
-                        size_t k1,
-                        size_t k2,
+                        size_t kernel,
                         std::unique_ptr<IBlas> blas,
-                        std::vector<double> params);
+                        std::vector<double> params
+        );
 
         Tensor forward(Tensor &&input) override;
 
@@ -30,18 +27,17 @@ namespace nn {
 
         std::vector<double> &getParameters() override;
 
+        static void img2col(const double* original, size_t h, size_t w, size_t kernel, double* res);
     private:
-        [[nodiscard]] std::vector<size_t> get_output_shape(const std::vector<size_t> &input_shape) const;
-
         const std::unique_ptr<IBlas> blas_;
         Tensor input_copy_;
+        std::vector<double> buff;
         const size_t input_channels_;
         const size_t output_channels_;
-        const size_t k1_;
-        const size_t k2_;
+        const size_t kernel_;
         Tensor params_;
         Tensor grad_;
     };
 }
 
-#endif //MLP_CONV2D_H
+#endif //TORCH4THEPOOREST_CONV2D_H

@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "Conv2d.h"
+#include "Conv2dNaive.h"
 #include "CpuBlas.h"
 #include <cmath>
 #include "Utils.h"
@@ -42,7 +42,7 @@ TEST(Conv2d, bruh) {
                            2, 2, 2,
                            1, 2, 3};
 
-    Conv2d conv2D(2, 2, 3, 3, make_unique<CpuBlas>(), w);
+    Conv2dNaive conv2D(2, 2, 3, 3, make_unique<CpuBlas>(), w);
     Tensor input(a, {1, 2, 6, 5});
 
     Tensor output = conv2D.forward(std::move(input));

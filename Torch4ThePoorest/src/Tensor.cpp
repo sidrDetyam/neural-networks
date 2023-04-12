@@ -21,7 +21,8 @@ Tensor::Tensor(tshape_t shape) : shape_(std::move(shape)) {
     for (auto i: shape_) {
         ASSERT_RE(i > 0);
     }
-    data_.assign(getBsize() * getFeatureSize(), 0);
+    data_.assign(size(), 0);
+    ASSERT_RE(data_.size() == size());
 }
 
 double *Tensor::operator[](size_t i) {
@@ -37,7 +38,9 @@ size_t Tensor::getBsize() const {
 }
 
 size_t Tensor::getFeatureSize() const {
-    size_t size = shape_.size() <= 1 ? 0 : 1;
+    ASSERT_RE(shape_.size() >= 2);
+
+    size_t size = 1;
     for (size_t i = 1; i < shape_.size(); ++i) {
         size *= shape_[i];
     }
@@ -77,13 +80,17 @@ void Tensor::map(const std::function<double(double)> &func) {
 }
 
 size_t Tensor::size() const {
-    return getBsize() * getFeatureSize();
+    size_t sz = !shape_.empty();
+    for(auto dim : shape_){
+        sz *= dim;
+    }
+    return sz;
 }
 
 size_t Tensor::get_element_index(const std::vector<size_t> &coord) const {
     ASSERT_RE(!coord.empty() && coord.size() <= shape_.size());
     size_t ind = 0;
-    size_t sz = getFeatureSize();
+    size_t sz = shape_.size()==1? 1 : getFeatureSize();
 
     for (size_t i = 0; i < coord.size(); ++i) {
         ind += sz * coord[i];

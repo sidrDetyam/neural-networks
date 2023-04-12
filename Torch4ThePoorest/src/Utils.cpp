@@ -40,3 +40,7 @@ bool is_same_cnt(const std::vector<size_t> &a, const std::vector<size_t> &b) {
            std::reduce(b.begin(), b.end(), 1ul, std::multiplies<>());
 }
 
+[[maybe_unused]] std::vector<double> xavier_init(size_t n) {
+    return random_vector_gauss(n, 0, sqrt(2. / (double)n));
+}
+
