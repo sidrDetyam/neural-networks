@@ -40,6 +40,8 @@ namespace nn {
 
         [[maybe_unused]] void reshape(tshape_t new_shape);
 
+        void resize(tshape_t new_size);
+
         [[nodiscard]] double &operator()(const std::vector<size_t> &coord);
 
         [[nodiscard]] const double &operator()(const std::vector<size_t> &coord) const;

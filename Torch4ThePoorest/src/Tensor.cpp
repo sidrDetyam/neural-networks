@@ -14,7 +14,7 @@ Tensor::Tensor(tdata_t data, tshape_t shape) :
         ASSERT_RE(i > 0);
     }
 
-    ASSERT_RE(data_.size() == getBsize() * getFeatureSize());
+    ASSERT_RE(data_.size() == size());
 }
 
 Tensor::Tensor(tshape_t shape) : shape_(std::move(shape)) {
@@ -56,14 +56,18 @@ bool Tensor::isSameShape(const Tensor &other) const {
 }
 
 [[maybe_unused]] void Tensor::reshape(std::vector<size_t> new_shape) {
-
     size_t cnt = new_shape.empty() ? 0 : 1;
     for (auto i: new_shape) {
         ASSERT_RE(i >= 1);
         cnt *= i;
     }
-    ASSERT_RE(cnt == getBsize() * getFeatureSize());
+    ASSERT_RE(cnt == size());
     shape_ = std::move(new_shape);
+}
+
+void Tensor::resize(tshape_t new_size) {
+    shape_ = std::move(new_size);
+    data_.resize(size());
 }
 
 tdata_t &Tensor::data() {

@@ -29,9 +29,11 @@ namespace nn {
 
         static void img2col(const double* original, size_t h, size_t w, size_t kernel, double* res);
     private:
+        [[nodiscard]] std::vector<size_t> get_output_shape(const std::vector<size_t> &input_shape) const;
+
         const std::unique_ptr<IBlas> blas_;
         Tensor input_copy_;
-        std::vector<double> buff;
+        Tensor buff_;
         const size_t input_channels_;
         const size_t output_channels_;
         const size_t kernel_;

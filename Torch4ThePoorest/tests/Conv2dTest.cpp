@@ -11,7 +11,7 @@
 using namespace std;
 using namespace nn;
 
-TEST(Conv2d, bruh) {
+TEST(Conv2d, naive) {
 
     auto blas = CpuBlas();
     const vector<double> a{1, 1, 1, 2, 3,

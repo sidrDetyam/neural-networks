@@ -6,16 +6,54 @@
 #include "Conv2dNaive.h"
 #include "CsvDataLoader.h"
 #include "Conv2d.h"
+#include "Utils.h"
 
 using namespace std;
 using namespace nn;
 
 int main() {
-    Tensor tensor({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}, {5, 4});
-    Tensor out({54});
-    cout << out.data().size() << endl;
-    Conv2d::img2col(tensor.data().data(), 5, 4, 3, out.data().data());
+    const vector<double> a{1, 1, 1, 2, 3,
+                           1, 1, 1, 2, 3,
+                           1, 1, 1, 2, 3,
+                           2, 2, 2, 2, 3,
+                           3, 3, 3, 3, 3,
+                           4, 4, 4, 4, 4,
 
-    cout << tensor << "\n\n";
-    cout << out << endl;
+                           1, 1, 5, 2, 3,
+                           1, 1, 6, 2, 3,
+                           1, 1, 7, 2, 3,
+                           2, 2, 8, 2, 3,
+                           3, 3, 9, 3, 3,
+                           4, 4, 0, 4, 4
+
+    };
+
+    const vector<double> w{1, 0, -1,
+                           2, 0, -2,
+                           1, 0, -1,
+                           1, 3, -1,
+                           2, 44, -2,
+                           1, 2, -1,
+
+                           3, 4, 5,
+                           6, 7, 8,
+                           9, 10, 11,
+                           11, 23, 42,
+                           2, 2, 2,
+                           1, 2, 3
+    };
+
+    Conv2dNaive conv2DNaive(2, 2, 3, 3, make_unique<CpuBlas>(), w);
+    Conv2d conv2D(2, 2, 3, make_unique<CpuBlas>(), w);
+
+    Tensor input(a, {1, 2, 6, 5});
+
+    Tensor output = conv2DNaive.forward(Tensor(input));
+    Tensor output2 = conv2D.forward(Tensor(input));
+
+    cout << output << endl;
+
+    cout << endl << output2 << endl;
+
+    return 0;
 }
