@@ -27,7 +27,7 @@ namespace nn {
 
         std::vector<double> &getParameters() override;
 
-        static void img2col(const double* original, size_t h, size_t w, size_t kernel, double* res);
+        static void img2col(const double* original, size_t h, size_t w, size_t kernel1, size_t kernel2, double* res);
     private:
         [[nodiscard]] std::vector<size_t> get_output_shape(const std::vector<size_t> &input_shape) const;
 
@@ -37,8 +37,8 @@ namespace nn {
         const size_t input_channels_;
         const size_t output_channels_;
         const size_t kernel_;
-        Tensor params_;
-        Tensor grad_;
+        std::vector<double> params_;
+        std::vector<double> grad_;
     };
 }
 

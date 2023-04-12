@@ -29,7 +29,7 @@ add_executable(Torch4ThePoorest
         ${sources}
         ${headers} ${headers_i} ${headers_l}
         ${tests}
-        main.cpp
+        #main.cpp
         #models/Mushroom.cpp
         #models/Lenet5.cpp
         include/CsvDataLoader.h src/CsvDataLoader.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp include/layers/Conv2d.h src/Conv2d.cpp)

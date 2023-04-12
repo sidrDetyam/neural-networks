@@ -48,12 +48,22 @@ int main() {
 
     Tensor input(a, {1, 2, 6, 5});
 
-    Tensor output = conv2DNaive.forward(Tensor(input));
-    Tensor output2 = conv2D.forward(Tensor(input));
+    Tensor loss(vector<double>(2 * 4 * 3, 1), {1, 2, 4, 3});
 
-    cout << output << endl;
+    conv2DNaive.forward(Tensor(input));
+    conv2D.forward(Tensor(input));
 
-    cout << endl << output2 << endl;
+    conv2D.backward(Tensor(loss));
+    conv2DNaive.backward(Tensor(loss));
+
+    Tensor c1(conv2DNaive.getParametersGradient(), {2, 2, 3, 3});
+    Tensor c2(conv2D.getParametersGradient(), {2, 2, 3, 3});
+
+    cout << c1 << endl;
+
+    cout << endl << c2 << endl;
+
+    cout << is_same_vectors(c1.data(), c2.data(), 1e-5);
 
     return 0;
 }
