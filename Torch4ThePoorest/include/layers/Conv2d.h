@@ -33,6 +33,8 @@ namespace nn {
 
         void calculate_params_grad(const Tensor &output);
 
+        void bruh();
+
         const std::unique_ptr<IBlas> blas_;
         Tensor input_copy_;
         Tensor buff_;

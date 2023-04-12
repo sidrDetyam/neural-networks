@@ -109,24 +109,68 @@ void Conv2d::calculate_params_grad(const Tensor &output) {
     blas_->scale(&grad_[0], (int) grad_.size(), 1. / (double) is[0]);
 }
 
+static void foo(double *const base_input,
+                const double *const base_output,
+                const double *const base_params,
+                const size_t kernel_,
+                const size_t il, const size_t ir,
+                const size_t jl, const size_t jr,
+                const std::vector<size_t> &is,
+                const std::vector<size_t> &os) {
+    for (int i = (int) il; i < ir; ++i) {
+        for (int j = (int) jl; j < (int) jr; ++j) {
+            const int r_d = std::max(0, i - (int) kernel_ + 1);
+            const int r_u = std::min(i, (int) is[2] - (int) kernel_);
+            const int c_d = std::max(0, j - (int) kernel_ + 1);
+            const int c_u = std::min(j, (int) is[3] - (int) kernel_);
+
+            for (int r = r_d; r <= r_u; ++r) {
+                for (int c = c_d; c <= c_u; ++c) {
+                    base_input[i * is[3] + j] +=
+                            base_params[(i - r) * kernel_ + (j - c)] * base_output[r * os[3] + c];
+                }
+            }
+        }
+
+    }
+}
+
+
+void Conv2d::bruh() {
+
+}
+
+
 
 nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
     ASSERT_RE(output.get_shape() == get_output_shape(input_copy_.get_shape()));
     calculate_params_grad(output);
 
+    //return Tensor();
+
     const auto &is = input_copy_.get_shape();
     const auto &os = output.get_shape();
-
-    ASSERT_RE(os[2] >= kernel_ && os[3] >= kernel_);
-    const size_t oh_conv = os[2] - kernel_ + 1;
-    const size_t ow_conv = os[3] - kernel_ + 1;
-
-    buff_.resize({output_channels_, kernel_ * kernel_, oh_conv * ow_conv});
-
+    input_copy_.map([](double _) { return 0.; });
     Tensor params(params_,
                   {output_channels_, input_channels_, kernel_, kernel_});
 
-    input_copy_.map([](double _) { return 0.; });
+    if(os[2] < kernel_ || os[3] < kernel_) {
+        for (size_t b = 0; b < is[0]; ++b) {
+            for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
+                for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+                    double *const base_input = &input_copy_({b, c_in});
+                    const double *const base_output = &output({b, c_out});
+                    const double *const base_params = &params({c_out, c_in});
+                    foo(base_input, base_output, base_params, kernel_, 0, is[2], 0, is[3], is, os);
+                }
+            }
+        }
+        return std::move(input_copy_);
+    }
+
+    const size_t oh_conv = os[2] - kernel_ + 1;
+    const size_t ow_conv = os[3] - kernel_ + 1;
+    buff_.resize({output_channels_, kernel_ * kernel_, oh_conv * ow_conv});
     Tensor buff2_({oh_conv, ow_conv});
 
     for (size_t b = 0; b < is[0]; ++b) {
@@ -160,23 +204,10 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
                 const double *const base_output = &output({b, c_out});
                 const double *const base_params = &params({c_out, c_in});
 
-                for (int i = 0; i < is[2]; ++i) {
-                    for (int j = 0; j < is[3]; ++j) {
-                        if ((i < kernel_ - 1 || i > is[2] - kernel_) || ((j < kernel_ - 1 || j > is[3] - kernel_))) {
-                            const int r_d = std::max(0, i - (int) kernel_ + 1);
-                            const int r_u = std::min(i, (int) is[2] - (int) kernel_);
-                            const int c_d = std::max(0, j - (int) kernel_ + 1);
-                            const int c_u = std::min(j, (int) is[3] - (int) kernel_);
-
-                            for (int r = r_d; r <= r_u; ++r) {
-                                for (int c = c_d; c <= c_u; ++c) {
-                                    base_input[i * is[3] + j] +=
-                                            base_params[(i - r) * kernel_ + (j - c)] * base_output[r * os[3] + c];
-                                }
-                            }
-                        }
-                    }
-                }
+                foo(base_input, base_output, base_params, kernel_, 0, kernel_-1, 0, is[3], is, os);
+                foo(base_input, base_output, base_params, kernel_, is[2] - kernel_+1, is[2], 0, is[3], is, os);
+                foo(base_input, base_output, base_params, kernel_, kernel_-1, is[2] - kernel_ + 1, 0, kernel_-1, is, os);
+                foo(base_input, base_output, base_params, kernel_, kernel_-1, is[2] - kernel_ + 1, is[3] - kernel_ + 1, is[3], is, os);
             }
         }
     }

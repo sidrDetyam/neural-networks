@@ -102,12 +102,12 @@ TEST(Conv2d, fast_forward){
 }
 
 TEST(Conv2d, fast_backward){
-    const size_t in = 1;
-    const size_t out = 6;
-    const size_t w = 28;
-    const size_t h = 28;
+    const size_t in = 6;
+    const size_t out = 16;
+    const size_t w = 12;
+    const size_t h = 12;
     const size_t k = 5;
-    const size_t b = 128;
+    const size_t b = 64;
     const auto weights = random_vector_gauss(in * out * k * k, 0, 3);
 
     Conv2dNaive conv2DNaive(in, out, k, k, make_unique<CpuBlas>(), weights);

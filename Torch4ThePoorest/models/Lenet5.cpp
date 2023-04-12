@@ -5,7 +5,7 @@
 #include "CpuBlas.h"
 #include <vector>
 #include <iostream>
-#include "Conv2dNaive.h"
+#include "Conv2d.h"
 #include "CsvDataLoader.h"
 #include "Sequential.h"
 #include "Linear.h"
@@ -27,15 +27,13 @@ nn::Linear *linearLayerCreator(const size_t input,
                           std::make_unique<CpuBlas>());
 }
 
-nn::Conv2dNaive *conv2DCreator(const size_t in_channels,
-                               const size_t out_channels,
-                               const size_t kernel) {
-    return new nn::Conv2dNaive(in_channels, out_channels, kernel, kernel,
-                               CpuBlas::of(),
-                               xavier_init(in_channels * out_channels * kernel * kernel));
+nn::Conv2d *conv2DCreator(const size_t in_channels,
+                          const size_t out_channels,
+                          const size_t kernel) {
+    return new nn::Conv2d(in_channels, out_channels, kernel,
+                          CpuBlas::of(),
+                          xavier_init(in_channels * out_channels * kernel * kernel));
 }
-
-
 
 
 nn::Sequential lenet5_model() {
@@ -98,38 +96,39 @@ nn::Sequential l_model() {
 using namespace std;
 
 
-std::pair<double, double> loss_accuracy(nn::Sequential& model, nn::IClassificationLostFunction& loss, const std::vector<nn::batch_t>& test){
+std::pair<double, double>
+loss_accuracy(nn::Sequential &model, nn::IClassificationLostFunction &loss, const std::vector<nn::batch_t> &test) {
     double err = 0;
     int correct = 0;
     int total = 0;
 
     int bi = 0;
-    for(const auto & batch : test){
+    for (const auto &batch: test) {
         nn::Tensor b = batch.first;
-        total += (int)b.getBsize();
+        total += (int) b.getBsize();
         auto out = model.forward(std::move(b));
 
         std::vector<int> one_hot;
-        for(auto i : batch.second.data()){
+        for (auto i: batch.second.data()) {
             one_hot.push_back((int) i);
         }
 
         auto l = loss.apply(out, one_hot);
 
-        for(size_t i = 0; i < out.getBsize(); ++i){
-            long cl = std::max_element(out[i], out[i+1]) - out[i];
+        for (size_t i = 0; i < out.getBsize(); ++i) {
+            long cl = std::max_element(out[i], out[i + 1]) - out[i];
             correct += cl == one_hot[i];
         }
 
         err += l.first;
         cout << "testing " << bi << "/" << test.size() << endl;
         bi++;
-        if(bi==20){
+        if (bi == 20) {
             break;
         }
     }
 
-    return {err / total, (double)correct / total};
+    return {err / total, (double) correct / total};
 }
 
 
@@ -147,14 +146,14 @@ int main() {
     nn::Sequential lenet = lenet5_model();
     //nn::Sequential lenet = l_model();
 
-    for(auto& b : train_batches){
-        for(auto & i : b.first.data()){
+    for (auto &b: train_batches) {
+        for (auto &i: b.first.data()) {
             i /= 255.;
         }
     }
 
-    for(auto& b : test_batches){
-        for(auto & i : b.first.data()){
+    for (auto &b: test_batches) {
+        for (auto &i: b.first.data()) {
             i /= 255.;
         }
     }
@@ -163,19 +162,19 @@ int main() {
 
     nn::CrossEntropyLoss loss;
 
-    for(int e=0; e<1000; ++e){
+    for (int e = 0; e < 1000; ++e) {
         double err = 0;
         int total = 0;
 
         int bi = 0;
-        for(const auto & batch : train_batches){
+        for (const auto &batch: train_batches) {
             int correct = 0;
 
             nn::Tensor b = batch.first;
             auto out = lenet.forward(std::move(b));
             total += (int) out.getBsize();
             std::vector<int> one_hot;
-            for(auto i : batch.second.data()){
+            for (auto i: batch.second.data()) {
                 one_hot.push_back((int) i);
             }
             auto l = loss.apply(out, one_hot);
@@ -184,13 +183,13 @@ int main() {
 
             err += l.first;
 
-            for(size_t i = 0; i < out.getBsize(); ++i){
-                long cl = std::max_element(out[i], out[i+1]) - out[i];
+            for (size_t i = 0; i < out.getBsize(); ++i) {
+                long cl = std::max_element(out[i], out[i + 1]) - out[i];
                 correct += cl == one_hot[i];
             }
 
             cout << "training " << bi << "/" << train_batches.size() << " " << err / total << " "
-            << l.first / (double)l.second.getBsize() << " " << (double)correct / l.second.getBsize()<< endl;
+                 << l.first / (double) l.second.getBsize() << " " << (double) correct / l.second.getBsize() << endl;
             ++bi;
 
 //            if(bi == 40){
