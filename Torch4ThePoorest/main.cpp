@@ -7,63 +7,91 @@
 #include "CsvDataLoader.h"
 #include "Conv2d.h"
 #include "Utils.h"
+#include <sstream>
+#include <unistd.h>
 
 using namespace std;
 using namespace nn;
 
+class Tqdm{
+public:
+
+    explicit Tqdm(int wide): wide_(wide){}
+
+    int start(int last){
+        last_ = last;
+        len_ = 0;
+        curr_ = 0;
+        print_promnt();
+        return curr_;
+    }
+
+    int next(){
+        ++curr_;
+        print_promnt();
+        if(is_end()){
+            cout << "\n";
+        }
+        return curr_;
+    }
+
+    [[nodiscard]] bool is_end() const{
+        return curr_ == last_;
+    }
+
+    void print_promnt(){
+        stringstream ss("");
+
+        for(int i=0; i<len_; ++i){
+            cout << "\010 \010";
+        }
+
+        ss << '[';
+
+        const int p = std::ceil(wide_ * 10. * curr_ / last_);
+        for(int i=0; i<p; ++i){
+            ss << '#';
+        }
+        for(int i=0; i<wide_ * 10 - p; ++i){
+            ss << ' ';
+        }
+
+        ss << "] ";
+        ss << 100. * curr_ / last_ << "%";
+
+        len_ = (int)ss.str().size();
+        cout << ss.str();
+        std::flush(cout);
+    }
+
+    template<class T>
+    friend Tqdm &operator<<(Tqdm &os, T t);
+
+private:
+    int wide_;
+    int last_ = 0;
+    int curr_ = 0;
+    int len_ = 0;
+};
+
+template<class T>
+Tqdm &operator<<(Tqdm &os, T t){
+    std::stringstream ss;
+    cout << t;
+    ss << t;
+    os.len_ += (int)ss.str().size();
+    std::flush(cout);
+    return os;
+}
+
+
 int main() {
-    const vector<double> a{1, 1, 1, 2, 3,
-                           1, 1, 1, 2, 3,
-                           1, 1, 1, 2, 3,
-                           2, 2, 2, 2, 3,
-                           3, 3, 3, 3, 3,
-                           4, 4, 4, 4, 4,
 
-                           1, 1, 5, 2, 3,
-                           1, 1, 6, 2, 3,
-                           1, 1, 7, 2, 3,
-                           2, 2, 8, 2, 3,
-                           3, 3, 9, 3, 3,
-                           4, 4, 0, 4, 4
-
-    };
-
-    const vector<double> w{1, 0, -1,
-                           2, 0, -2,
-                           1, 0, -1,
-                           1, 3, -1,
-                           2, 44, -2,
-                           1, 2, -1,
-
-                           3, 4, 5,
-                           6, 7, 8,
-                           9, 10, 11,
-                           11, 23, 42,
-                           2, 2, 2,
-                           1, 2, 3
-    };
-
-    Conv2dNaive conv2DNaive(2, 2, 3, 3, make_unique<CpuBlas>(), w);
-    Conv2d conv2D(2, 2, 3, make_unique<CpuBlas>(), w);
-
-    Tensor input(a, {1, 2, 6, 5});
-
-    Tensor loss(vector<double>(2 * 4 * 3, 1), {1, 2, 4, 3});
-
-    conv2DNaive.forward(Tensor(input));
-    conv2D.forward(Tensor(input));
-
-    conv2D.backward(Tensor(loss));
-    conv2DNaive.backward(Tensor(loss));
-
-    Tensor c1(conv2DNaive.getParametersGradient(), {2, 2, 3, 3});
-    Tensor c2(conv2D.getParametersGradient(), {2, 2, 3, 3});
-
-    cout << c1 << endl;
-
-    cout << endl << c2 << endl;
-
-    cout << is_same_vectors(c1.data(), c2.data(), 1e-5);
+    Tqdm tqdm (5);
+    for(int i = tqdm.start(100); !tqdm.is_end(); i = tqdm.next()){
+        tqdm << " bruh" << " " << i;
+        sleep(1);
+    }
 
     return 0;
 }

@@ -17,7 +17,7 @@
 #include "CrossEntropyLoss.h"
 #include "Dropout.h"
 #include "Tanh.h"
-
+#include "Tqdm.h"
 
 nn::Linear *linearLayerCreator(const size_t input,
                                const size_t output) {
@@ -142,17 +142,17 @@ loss_accuracy(nn::Sequential &model, nn::IClassificationLostFunction &loss, cons
 
 int main() {
     nn::CsvDataLoader loader_train(128, true,
-                                   "/home/sidr/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_train.csv",
+                                   "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_train.csv",
                                    785, {0});
 
     nn::CsvDataLoader loader_test(128, true,
-                                  "/home/sidr/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_test.csv",
+                                  "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_test.csv",
                                   785, {0});
 
     std::vector<nn::batch_t> train_batches = loader_train.read_all();
     std::vector<nn::batch_t> test_batches = loader_test.read_all();
-    //nn::Sequential lenet = lenet5_model();
-    nn::Sequential lenet = l_model();
+    nn::Sequential lenet = lenet5_model();
+    //nn::Sequential lenet = l_model();
 
     for (auto &b: train_batches) {
         for (auto &i: b.first.data()) {
@@ -178,9 +178,12 @@ int main() {
         double err = 0;
         int total = 0;
 
-        int bi = 0;
-        for (const auto &batch: train_batches) {
+        cout << endl;
+
+        Tqdm tqdm(3);
+        for (int bi = tqdm.start(train_batches.size()); !tqdm.is_end();) {
             int correct = 0;
+            const auto& batch = train_batches[bi];
 
             nn::Tensor b = batch.first;
             auto out = lenet.forward(std::move(b));
@@ -200,9 +203,9 @@ int main() {
                 correct += cl == one_hot[i];
             }
 
-            cout << "training " << bi << "/" << train_batches.size() << " " << err / total << " "
-                 << l.first / (double) l.second.getBsize() << " " << (double) correct / l.second.getBsize() << endl;
-            ++bi;
+            bi = tqdm.next();
+            tqdm << "   Training... " << bi << "/" << train_batches.size() << " " << err / total << " "
+                 << l.first / (double) l.second.getBsize() << " " << (double) correct / l.second.getBsize();
 
 //            if(bi == 40){
 //                break;

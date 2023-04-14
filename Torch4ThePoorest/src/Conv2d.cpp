@@ -161,9 +161,9 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
 
     for (size_t b = 0; b < is[0]; ++b) {
         for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
-            add_padding(&output({b, c_out}), &padding_buff({0}), os[2], os[3],
+            add_padding(&output({b, c_out}), padding_buff.data().data(), os[2], os[3],
                         padding, padding, padding, padding);
-            img2col(&padding_buff({0}), is[2] + kernel_ - 1, is[3] + kernel_ - 1, kernel_, kernel_,
+            img2col(padding_buff.data().data(), is[2] + kernel_ - 1, is[3] + kernel_ - 1, kernel_, kernel_,
                     &im2col_buff({c_out}));
         }
 
@@ -173,8 +173,8 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
 
         blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
                           m, n, k,
-                          1., &reversed_kernels({0}), k,
-                          &im2col_buff({0}), n, 0,
+                          1., reversed_kernels.data().data(), k,
+                          im2col_buff.data().data(), n, 0,
                           &input_copy_({b}), n);
     }
 
