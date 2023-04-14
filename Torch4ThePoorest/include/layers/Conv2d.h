@@ -27,13 +27,17 @@ namespace nn {
 
         std::vector<double> &getParameters() override;
 
-        static void img2col(const double* original, size_t h, size_t w, size_t kernel1, size_t kernel2, double* res);
+        static void add_padding(const double* source, double* dest, size_t h, size_t w, size_t l, size_t t, size_t r, size_t b);
+
     private:
         [[nodiscard]] std::vector<size_t> get_output_shape(const std::vector<size_t> &input_shape) const;
 
-        void calculate_params_grad(const Tensor &output);
+        static void img2col(const double *original,
+                            size_t h, size_t w,
+                            size_t kernel1, size_t kernel2,
+                            double *res);
 
-        void bruh();
+        void calculate_params_grad(const Tensor &output);
 
         const std::unique_ptr<IBlas> blas_;
         Tensor input_copy_;

@@ -22,8 +22,10 @@
 nn::Linear *linearLayerCreator(const size_t input,
                                const size_t output) {
     return new nn::Linear(input, output,
-                          xavier_init(input * output),
-                          xavier_init(output),
+                          //xavier_init(input * output),
+                          //xavier_init(output),
+                          random_vector_gauss(input*output, 0, 0.3),
+                          random_vector_gauss(output, 0, 0.1),
                           std::make_unique<CpuBlas>());
 }
 
@@ -32,7 +34,8 @@ nn::Conv2d *conv2DCreator(const size_t in_channels,
                           const size_t kernel) {
     return new nn::Conv2d(in_channels, out_channels, kernel,
                           CpuBlas::of(),
-                          xavier_init(in_channels * out_channels * kernel * kernel));
+                          //xavier_init(in_channels * out_channels * kernel * kernel),
+                          random_vector_gauss(in_channels * out_channels * kernel * kernel, 0, 0.1));
 }
 
 
@@ -82,12 +85,20 @@ nn::Sequential l_model() {
     std::vector<std::unique_ptr<nn::ILayer>> layers;
 
     layers.emplace_back(linearLayerCreator(784, 129));
-    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
+    layers.emplace_back(new nn::Tanh());
+    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
+    layers.emplace_back(new nn::DropoutLayer(0.3));
     layers.emplace_back(linearLayerCreator(129, 84));
-    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
-    layers.emplace_back(linearLayerCreator(84, 10));
+//    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
+    layers.emplace_back(new nn::Tanh());
+    layers.emplace_back(new nn::DropoutLayer(0.3));
+    layers.emplace_back(linearLayerCreator(84, 30));
+//    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
+    layers.emplace_back(new nn::Tanh());
+    layers.emplace_back(new nn::DropoutLayer(0.3));
+    layers.emplace_back(linearLayerCreator(30, 10));
 
-    nn::SgdOptimizerCreator sgd_creator(0.9, 0.001, std::make_shared<CpuBlas>());
+    nn::SgdOptimizerCreator sgd_creator(0.9, 0.01, std::make_shared<CpuBlas>());
     nn::Sequential model(std::move(layers), std::make_unique<nn::SgdOptimizerCreator>(std::move(sgd_creator)));
 
     return model;
@@ -123,9 +134,6 @@ loss_accuracy(nn::Sequential &model, nn::IClassificationLostFunction &loss, cons
         err += l.first;
         cout << "testing " << bi << "/" << test.size() << endl;
         bi++;
-        if (bi == 20) {
-            break;
-        }
     }
 
     return {err / total, (double) correct / total};
@@ -143,8 +151,8 @@ int main() {
 
     std::vector<nn::batch_t> train_batches = loader_train.read_all();
     std::vector<nn::batch_t> test_batches = loader_test.read_all();
-    nn::Sequential lenet = lenet5_model();
-    //nn::Sequential lenet = l_model();
+    //nn::Sequential lenet = lenet5_model();
+    nn::Sequential lenet = l_model();
 
     for (auto &b: train_batches) {
         for (auto &i: b.first.data()) {
@@ -163,6 +171,10 @@ int main() {
     nn::CrossEntropyLoss loss;
 
     for (int e = 0; e < 1000; ++e) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::shuffle(train_batches.begin(), train_batches.end(), gen);
+
         double err = 0;
         int total = 0;
 
@@ -203,6 +215,6 @@ int main() {
 
         auto val = loss_accuracy(lenet, loss, test_batches);
         cout << e << " " << err / total << " " << val.first << " " << val.second << endl;
-        sleep(1);
+        sleep(5);
     }
 }

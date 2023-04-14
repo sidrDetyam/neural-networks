@@ -102,12 +102,12 @@ TEST(Conv2d, fast_forward){
 }
 
 TEST(Conv2d, fast_backward){
-    const size_t in = 6;
-    const size_t out = 16;
-    const size_t w = 12;
-    const size_t h = 12;
-    const size_t k = 5;
-    const size_t b = 64;
+    const size_t in = 16;
+    const size_t out = 120;
+    const size_t w = 5;
+    const size_t h = 5;
+    const size_t k = 4;
+    const size_t b = 100;
     const auto weights = random_vector_gauss(in * out * k * k, 0, 3);
 
     Conv2dNaive conv2DNaive(in, out, k, k, make_unique<CpuBlas>(), weights);
@@ -182,3 +182,11 @@ TEST(Conv2d, fast_backward){
 //    ASSERT_EQ(true, is_same_vectors(output.data(), output2.data(), 1e-5));
 //    ASSERT_GE(n, f);
 //}
+
+TEST(Conv2d, padding){
+    Tensor a({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, {4, 3});
+    Tensor b(vector<double>(36, 1), {6, 6});
+    Conv2d::add_padding(&a({0}), &b({0}), 4, 3, 2, 0, 1, 2);
+
+    cout << b << endl;
+}

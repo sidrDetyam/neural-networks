@@ -136,83 +136,49 @@ static void foo(double *const base_input,
 }
 
 
-void Conv2d::bruh() {
-
-}
-
-
-
 nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
     ASSERT_RE(output.get_shape() == get_output_shape(input_copy_.get_shape()));
     calculate_params_grad(output);
 
-    //return Tensor();
-
     const auto &is = input_copy_.get_shape();
     const auto &os = output.get_shape();
     input_copy_.map([](double _) { return 0.; });
-    Tensor params(params_,
-                  {output_channels_, input_channels_, kernel_, kernel_});
 
-    if(os[2] < kernel_ || os[3] < kernel_) {
-        for (size_t b = 0; b < is[0]; ++b) {
-            for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
-                for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
-                    double *const base_input = &input_copy_({b, c_in});
-                    const double *const base_output = &output({b, c_out});
-                    const double *const base_params = &params({c_out, c_in});
-                    foo(base_input, base_output, base_params, kernel_, 0, is[2], 0, is[3], is, os);
-                }
-            }
+    const Tensor kernels(params_, {output_channels_, input_channels_, kernel_, kernel_});
+    Tensor reversed_kernels(params_, {input_channels_, output_channels_, kernel_, kernel_});
+
+    for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
+        for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+            double *const ptr = &reversed_kernels({c_in, c_out});
+            std::copy_n(&kernels({c_out, c_in}), kernel_ * kernel_, ptr);
+            std::reverse(ptr, ptr + kernel_ * kernel_);
         }
-        return std::move(input_copy_);
     }
 
-    const size_t oh_conv = os[2] - kernel_ + 1;
-    const size_t ow_conv = os[3] - kernel_ + 1;
-    buff_.resize({output_channels_, kernel_ * kernel_, oh_conv * ow_conv});
-    Tensor buff2_({oh_conv, ow_conv});
+    Tensor padding_buff({os[2] + 2 * kernel_ - 2, os[3] + 2 * kernel_ - 2});
+    const size_t padding = kernel_ - 1;
+    Tensor im2col_buff({output_channels_, kernel_ * kernel_, is[2] * is[3]});
 
     for (size_t b = 0; b < is[0]; ++b) {
         for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
-            img2col(&output({b, c_out}),
-                    os[2], os[3], kernel_, kernel_,
-                    &buff_({c_out}));
-
-            for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
-                std::vector<double> reversed_kernel(kernel_ * kernel_);
-                std::memcpy(reversed_kernel.data(), &params({c_out, c_in}), sizeof(double) * kernel_ * kernel_);
-                std::reverse(reversed_kernel.begin(), reversed_kernel.end());
-
-                const int m = 1;
-                const int n = (int) (oh_conv * ow_conv);
-                const int k = (int) (kernel_ * kernel_);
-
-                blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
-                                  m, n, k,
-                                  1., reversed_kernel.data(), k,
-                                  &buff_({c_out}), n, 0,
-                                  &buff2_({0}), n);
-
-                for (size_t i = 0; i < oh_conv; ++i) {
-                    blas_->daxpby((int) ow_conv, &buff2_({i}), 1.,
-                                  &input_copy_({b, c_in, kernel_ - 1 + i, kernel_ - 1}),
-                                  1.);
-                }
-
-                double *const base_input = &input_copy_({b, c_in});
-                const double *const base_output = &output({b, c_out});
-                const double *const base_params = &params({c_out, c_in});
-
-                foo(base_input, base_output, base_params, kernel_, 0, kernel_-1, 0, is[3], is, os);
-                foo(base_input, base_output, base_params, kernel_, is[2] - kernel_+1, is[2], 0, is[3], is, os);
-                foo(base_input, base_output, base_params, kernel_, kernel_-1, is[2] - kernel_ + 1, 0, kernel_-1, is, os);
-                foo(base_input, base_output, base_params, kernel_, kernel_-1, is[2] - kernel_ + 1, is[3] - kernel_ + 1, is[3], is, os);
-            }
+            add_padding(&output({b, c_out}), &padding_buff({0}), os[2], os[3],
+                        padding, padding, padding, padding);
+            img2col(&padding_buff({0}), is[2] + kernel_ - 1, is[3] + kernel_ - 1, kernel_, kernel_,
+                    &im2col_buff({c_out}));
         }
+
+        const int m = (int)input_channels_;
+        const int n = (int) (is[2] * is[3]);
+        const int k = (int) (kernel_ * kernel_ * output_channels_);
+
+        blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
+                          m, n, k,
+                          1., &reversed_kernels({0}), k,
+                          &im2col_buff({0}), n, 0,
+                          &input_copy_({b}), n);
     }
 
-    return input_copy_;
+    return std::move(input_copy_);
 }
 
 std::vector<double> &nn::Conv2d::getParametersGradient() {
@@ -268,4 +234,20 @@ std::vector<size_t> Conv2d::get_output_shape(const std::vector<size_t> &input_sh
     output_shape[2] = output_shape[2] - kernel_ + 1;
     output_shape[3] = output_shape[3] - kernel_ + 1;
     return output_shape;
+}
+
+void
+Conv2d::add_padding(const double *source, double *dest, size_t h, size_t w, size_t l, size_t t, size_t r, size_t b) {
+    const size_t ph = h + t + b;
+    const size_t pw = w + l + r;
+    for (size_t i = 0, si = 0; i < ph * pw; ++i) {
+        const size_t y = i / pw;
+        const size_t x = i - y * pw;
+        if (y < t || h + t <= y || x < l || w + l <= x) {
+            dest[i] = 0;
+        } else {
+            dest[i] = source[si];
+            ++si;
+        }
+    }
 }
