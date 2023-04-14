@@ -28,6 +28,8 @@ public:
 
     virtual void daxpby(int n, const double *a, double alpha, double *b, double beta) = 0;
 
+    virtual void daxpby_full(int n, const double *a, double alpha, int inca, double *b, double beta, int incb) = 0;
+
     virtual void element_wise_mult(int n, const double *a, const double *b, double *c) = 0;
 
     [[maybe_unused]] virtual void dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b,

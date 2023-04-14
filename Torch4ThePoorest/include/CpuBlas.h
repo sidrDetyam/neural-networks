@@ -25,6 +25,8 @@ public:
 
     void scale(double *a, int n, double scale) override;
 
+    void daxpby_full(int n, const double *a, double alpha, int inca, double *b, double beta, int incb) override;
+
     void daxpby(int n, const double *a, double alpha, double *b, double beta) override;
 
     void dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b, int m, int n, int k, double alpha,

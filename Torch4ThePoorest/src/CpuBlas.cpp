@@ -43,6 +43,10 @@ void CpuBlas::daxpby(int n, const double *a, double alpha, double *b, double bet
     }
 }
 
+void CpuBlas::daxpby_full(int n, const double *a, double alpha, int inca, double *b, double beta, int incb) {
+    cblas_daxpby(n, alpha, a, inca, beta, b, incb);
+}
+
 void CpuBlas::dgemm_full(MatrixOrder order, Transpose trans_a, Transpose trans_b, int m, int n, int k, double alpha,
                          const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) {
 

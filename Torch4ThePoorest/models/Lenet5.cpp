@@ -35,7 +35,7 @@ nn::Conv2d *conv2DCreator(const size_t in_channels,
     return new nn::Conv2d(in_channels, out_channels, kernel,
                           CpuBlas::of(),
             //xavier_init(in_channels * out_channels * kernel * kernel),
-                          random_vector_gauss(in_channels * out_channels * kernel * kernel, 0, 0.1));
+                          random_vector_gauss(in_channels * out_channels * kernel * kernel + out_channels, 0, 0.1), true);
 }
 
 

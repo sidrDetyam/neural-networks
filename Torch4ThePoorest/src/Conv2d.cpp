@@ -70,6 +70,19 @@ nn::Tensor nn::Conv2d::forward(nn::Tensor &&input) {
         }
     }
 
+    if(bias_) {
+        std::vector<size_t> coord(2);
+        for (size_t b = 0; b < output_shape[0]; ++b) {
+            for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+                coord[0] = b;
+                coord[1] = c_out;
+                double *const base_ptr = &output(coord);
+                double bias = (&get_bias_part_param())[c_out];
+                blas_->daxpby_full((int) (output_shape[2] * output_shape[3]), &bias, 1., 0, base_ptr, 1., 1);
+            }
+        }
+    }
+
     return output;
 }
 
@@ -81,7 +94,7 @@ void Conv2d::calculate_params_grad(const Tensor &output) {
 
     buff_.resize({input_channels_, os[2] * os[3], (is[2] - os[2] + 1) * (is[3] - os[3] + 1)});
 
-    Tensor params_grad(std::vector<double>(grad_.size()),
+    Tensor kernels_grad(std::vector<double>(output_channels_*input_channels_*kernel_*kernel_),
                        {output_channels_, input_channels_, kernel_, kernel_});
 
     for (size_t b = 0; b < is[0]; ++b) {
@@ -101,11 +114,25 @@ void Conv2d::calculate_params_grad(const Tensor &output) {
                                   m, n, k,
                                   1., &output({b, c_out}), k,
                                   &buff_({c_in}), n, 1.,
-                                  &params_grad({c_out, c_in}), n);
+                                  &kernels_grad({c_out, c_in}), n);
             }
         }
     }
-    grad_ = params_grad.data();
+    std::copy(kernels_grad.data().begin(), kernels_grad.data().end(), grad_.begin());
+
+    if(bias_) {
+        std::vector<size_t> coord(2);
+        for (size_t b = 0; b < os[0]; ++b) {
+            for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
+                coord[0] = b;
+                coord[1] = c_out;
+                const double *const base_ptr = &output(coord);
+                double *const bias = &(&get_bias_part_grad())[c_out];
+                blas_->daxpby_full((int) (os[2] * os[3]), base_ptr, 1., 1, bias, 1., 0);
+            }
+        }
+    }
+
     blas_->scale(&grad_[0], (int) grad_.size(), 1. / (double) is[0]);
 }
 
@@ -117,8 +144,9 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
     const auto &is = input_copy_.get_shape();
     const auto &os = output.get_shape();
 
-    const Tensor kernels(params_, {output_channels_, input_channels_, kernel_, kernel_});
-    Tensor reversed_kernels(params_, {input_channels_, output_channels_, kernel_, kernel_});
+    std::vector<double> raw_kernels(params_.data(), &get_bias_part_param());
+    const Tensor kernels(std::move(raw_kernels), {output_channels_, input_channels_, kernel_, kernel_});
+    Tensor reversed_kernels({input_channels_, output_channels_, kernel_, kernel_});
 
     for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
         for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
@@ -155,9 +183,9 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
                       im2col_buff_.data().data(), n, 0,
                       &input_grads_shuffled_({0}), n);
 
-    for(size_t b=0; b<is[0]; ++b){
-        for(size_t c_in=0; c_in < input_channels_; ++c_in){
-            std::copy_n(&input_grads_shuffled_({c_in, b}), is[2]*is[3], &input_copy_({b, c_in}));
+    for (size_t b = 0; b < is[0]; ++b) {
+        for (size_t c_in = 0; c_in < input_channels_; ++c_in) {
+            std::copy_n(&input_grads_shuffled_({c_in, b}), is[2] * is[3], &input_copy_({b, c_in}));
         }
     }
 
@@ -176,15 +204,17 @@ Conv2d::Conv2d(const size_t input_channels,
                const size_t output_channels,
                const size_t kernel,
                std::unique_ptr<IBlas> blas,
-               std::vector<double> params) :
+               std::vector<double> params,
+               const bool bias) :
         input_channels_(input_channels),
         output_channels_(output_channels),
         kernel_(kernel),
         blas_(std::move(blas)),
-        grad_(output_channels * input_channels * kernel * kernel) {
+        bias_(bias) {
 
-    ASSERT_RE(params.size() == output_channels_ * input_channels_ * kernel_ * kernel_);
+    ASSERT_RE(params.size() == output_channels_ * input_channels_ * kernel_ * kernel_ + (bias? output_channels_ : 0));
     params_ = std::move(params);
+    grad_.assign(params_.size(), 0);
 }
 
 void Conv2d::img2col(const double *const original,
@@ -238,4 +268,12 @@ Conv2d::add_padding(const double *source, double *dest, size_t h, size_t w, size
             ++si;
         }
     }
+}
+
+double &Conv2d::get_bias_part_param(){
+    return params_[output_channels_ * input_channels_ * kernel_ * kernel_];
+}
+
+double &Conv2d::get_bias_part_grad() {
+    return grad_[output_channels_ * input_channels_ * kernel_ * kernel_];
 }

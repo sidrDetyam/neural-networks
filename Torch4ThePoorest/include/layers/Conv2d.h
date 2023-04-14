@@ -16,7 +16,8 @@ namespace nn {
                         size_t output_channels,
                         size_t kernel,
                         std::unique_ptr<IBlas> blas,
-                        std::vector<double> params
+                        std::vector<double> params,
+                        bool bias = false
         );
 
         Tensor forward(Tensor &&input) override;
@@ -40,6 +41,10 @@ namespace nn {
 
         void calculate_params_grad(const Tensor &output);
 
+        [[nodiscard]] double &get_bias_part_param();
+
+        [[nodiscard]] double &get_bias_part_grad();
+
         const std::unique_ptr<IBlas> blas_;
         Tensor input_copy_;
         Tensor buff_;
@@ -48,6 +53,7 @@ namespace nn {
         const size_t kernel_;
         std::vector<double> params_;
         std::vector<double> grad_;
+        bool bias_;
 
         Tensor im2col_buff_;
         Tensor input_grads_shuffled_;
