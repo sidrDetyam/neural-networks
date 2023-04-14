@@ -109,32 +109,6 @@ void Conv2d::calculate_params_grad(const Tensor &output) {
     blas_->scale(&grad_[0], (int) grad_.size(), 1. / (double) is[0]);
 }
 
-static void foo(double *const base_input,
-                const double *const base_output,
-                const double *const base_params,
-                const size_t kernel_,
-                const size_t il, const size_t ir,
-                const size_t jl, const size_t jr,
-                const std::vector<size_t> &is,
-                const std::vector<size_t> &os) {
-    for (int i = (int) il; i < ir; ++i) {
-        for (int j = (int) jl; j < (int) jr; ++j) {
-            const int r_d = std::max(0, i - (int) kernel_ + 1);
-            const int r_u = std::min(i, (int) is[2] - (int) kernel_);
-            const int c_d = std::max(0, j - (int) kernel_ + 1);
-            const int c_u = std::min(j, (int) is[3] - (int) kernel_);
-
-            for (int r = r_d; r <= r_u; ++r) {
-                for (int c = c_d; c <= c_u; ++c) {
-                    base_input[i * is[3] + j] +=
-                            base_params[(i - r) * kernel_ + (j - c)] * base_output[r * os[3] + c];
-                }
-            }
-        }
-
-    }
-}
-
 
 nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
     ASSERT_RE(output.get_shape() == get_output_shape(input_copy_.get_shape()));
@@ -142,7 +116,6 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
 
     const auto &is = input_copy_.get_shape();
     const auto &os = output.get_shape();
-    input_copy_.map([](double _) { return 0.; });
 
     const Tensor kernels(params_, {output_channels_, input_channels_, kernel_, kernel_});
     Tensor reversed_kernels(params_, {input_channels_, output_channels_, kernel_, kernel_});
@@ -157,25 +130,35 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
 
     Tensor padding_buff({os[2] + 2 * kernel_ - 2, os[3] + 2 * kernel_ - 2});
     const size_t padding = kernel_ - 1;
-    Tensor im2col_buff({output_channels_, kernel_ * kernel_, is[2] * is[3]});
+    im2col_buff_.resize({output_channels_, kernel_ * kernel_, is[0], is[2] * is[3]});
+    input_grads_shuffled_.resize({input_channels_, is[0], is[2] * is[3]});
+
 
     for (size_t b = 0; b < is[0]; ++b) {
         for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
             add_padding(&output({b, c_out}), padding_buff.data().data(), os[2], os[3],
                         padding, padding, padding, padding);
+
             img2col(padding_buff.data().data(), is[2] + kernel_ - 1, is[3] + kernel_ - 1, kernel_, kernel_,
-                    &im2col_buff({c_out}));
+                    &im2col_buff_({c_out, 0, b}),
+                    is[0] * is[2] * is[3]);
         }
+    }
 
-        const int m = (int)input_channels_;
-        const int n = (int) (is[2] * is[3]);
-        const int k = (int) (kernel_ * kernel_ * output_channels_);
+    const int m = (int) input_channels_;
+    const int n = (int) (is[0] * is[2] * is[3]);
+    const int k = (int) (kernel_ * kernel_ * output_channels_);
 
-        blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
-                          m, n, k,
-                          1., reversed_kernels.data().data(), k,
-                          im2col_buff.data().data(), n, 0,
-                          &input_copy_({b}), n);
+    blas_->dgemm_full(ROW_ORDER, NO_TRANS, NO_TRANS,
+                      m, n, k,
+                      1., reversed_kernels.data().data(), k,
+                      im2col_buff_.data().data(), n, 0,
+                      &input_grads_shuffled_({0}), n);
+
+    for(size_t b=0; b<is[0]; ++b){
+        for(size_t c_in=0; c_in < input_channels_; ++c_in){
+            std::copy_n(&input_grads_shuffled_({c_in, b}), is[2]*is[3], &input_copy_({b, c_in}));
+        }
     }
 
     return std::move(input_copy_);
@@ -208,15 +191,20 @@ void Conv2d::img2col(const double *const original,
                      const size_t h, const size_t w,
                      const size_t kernel1,
                      const size_t kernel2,
-                     double *const res) {
+                     double *const res,
+                     size_t lda) {
     ASSERT_RE(h >= kernel1 && w >= kernel2);
+    ASSERT_RE(lda >= (h - kernel1 + 1) * (w - kernel2 + 1) || lda == 0);
+    if (lda == 0) {
+        lda = (h - kernel1 + 1) * (w - kernel2 + 1);
+    }
 
     //bruh
     for (size_t kh = 0; kh < kernel1; ++kh) {
         for (size_t kw = 0; kw < kernel2; ++kw) {
             for (size_t i = 0; i < h - kernel1 + 1; ++i) {
                 for (size_t j = 0; j < w - kernel2 + 1; ++j) {
-                    res[(kh * kernel2 + kw) * ((h - kernel1 + 1) * (w - kernel2 + 1)) +
+                    res[(kh * kernel2 + kw) * lda +
                         (i * (w - kernel2 + 1) + j)] = original[(i + kh) * (w) + (j + kw)];
                 }
             }

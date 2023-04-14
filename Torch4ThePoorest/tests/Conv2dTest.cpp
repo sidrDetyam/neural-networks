@@ -107,7 +107,8 @@ TEST(Conv2d, fast_backward){
     const size_t w = 5;
     const size_t h = 5;
     const size_t k = 4;
-    const size_t b = 100;
+    const size_t b = 10000;
+    const size_t rounds = 1;
     const auto weights = random_vector_gauss(in * out * k * k, 0, 3);
 
     Conv2dNaive conv2DNaive(in, out, k, k, make_unique<CpuBlas>(), weights);
@@ -123,19 +124,31 @@ TEST(Conv2d, fast_backward){
     using namespace chrono;
 
     auto n1 = high_resolution_clock::now();
-    output = conv2DNaive.forward(Tensor(input));
-    g1 = conv2DNaive.backward(l);
+    for(int i=0; i<rounds; ++i) {
+        output = conv2DNaive.forward(Tensor(input));
+        g1 = conv2DNaive.backward(l);
+    }
     auto n2 = high_resolution_clock::now();
 
+    auto p1 = high_resolution_clock::now();
+    for(int i=0; i<rounds; ++i) {
+        output2 = conv2D.forward(Tensor(input));
+        g2 = conv2D.backward(l);
+    }
+    auto p2 = high_resolution_clock::now();
+
     auto f1 = high_resolution_clock::now();
-    output2 = conv2D.forward(Tensor(input));
-    g2 = conv2D.backward(l);
+    for(int i=0; i<rounds; ++i) {
+        output2 = conv2D.forward(Tensor(input));
+        g2 = conv2D.backward(l);
+    }
     auto f2 = high_resolution_clock::now();
 
     auto n = duration_cast<microseconds>(n2 - n1).count();
     auto f = duration_cast<microseconds>(f2 - f1).count();
+    auto  p = duration_cast<microseconds>(p2-p1).count();
 
-    cout << n << " " << f << endl;
+    cout << n << " " << f << " " << p <<  endl;
 
     ASSERT_EQ(is_same_vectors(output.data(), output2.data(), 1e-5), true);
     ASSERT_EQ(is_same_vectors(conv2D.getParametersGradient(), conv2DNaive.getParametersGradient(), 1e-5), true);

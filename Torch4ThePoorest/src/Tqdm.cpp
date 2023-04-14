@@ -20,9 +20,6 @@ int Tqdm::start(int last){
 int Tqdm::next(){
     ++curr_;
     print_promnt();
-    if(is_end()){
-        cout << "\n";
-    }
     return curr_;
 }
 
@@ -51,6 +48,8 @@ void Tqdm::print_promnt(){
     ss << 100. * curr_ / last_ << "%";
 
     len_ = (int)ss.str().size();
+    cout << "\x1B[32m";
     cout << ss.str();
+    cout << "\x1B[0m";
     std::flush(cout);
 }

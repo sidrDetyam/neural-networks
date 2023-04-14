@@ -22,9 +22,9 @@
 nn::Linear *linearLayerCreator(const size_t input,
                                const size_t output) {
     return new nn::Linear(input, output,
-                          //xavier_init(input * output),
-                          //xavier_init(output),
-                          random_vector_gauss(input*output, 0, 0.3),
+            //xavier_init(input * output),
+            //xavier_init(output),
+                          random_vector_gauss(input * output, 0, 0.3),
                           random_vector_gauss(output, 0, 0.1),
                           std::make_unique<CpuBlas>());
 }
@@ -34,7 +34,7 @@ nn::Conv2d *conv2DCreator(const size_t in_channels,
                           const size_t kernel) {
     return new nn::Conv2d(in_channels, out_channels, kernel,
                           CpuBlas::of(),
-                          //xavier_init(in_channels * out_channels * kernel * kernel),
+            //xavier_init(in_channels * out_channels * kernel * kernel),
                           random_vector_gauss(in_channels * out_channels * kernel * kernel, 0, 0.1));
 }
 
@@ -141,7 +141,7 @@ loss_accuracy(nn::Sequential &model, nn::IClassificationLostFunction &loss, cons
 
 
 int main() {
-    nn::CsvDataLoader loader_train(128, true,
+    nn::CsvDataLoader loader_train(130, true,
                                    "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_train.csv",
                                    785, {0});
 
@@ -181,9 +181,9 @@ int main() {
         cout << endl;
 
         Tqdm tqdm(3);
-        for (int bi = tqdm.start(train_batches.size()); !tqdm.is_end();) {
+        for (int bi = tqdm.start((int)train_batches.size()); !tqdm.is_end();) {
             int correct = 0;
-            const auto& batch = train_batches[bi];
+            const auto &batch = train_batches[bi];
 
             nn::Tensor b = batch.first;
             auto out = lenet.forward(std::move(b));
@@ -204,16 +204,10 @@ int main() {
             }
 
             bi = tqdm.next();
-            tqdm << "   Training... " << bi << "/" << train_batches.size() << " " << err / total << " "
-                 << l.first / (double) l.second.getBsize() << " " << (double) correct / l.second.getBsize();
-
-//            if(bi == 40){
-//                break;
-//            }
-
-//            auto bruh = loss_accuracy(model, loss, test_batches);
-//            cout << bruh.first << " " << bruh.second << " " << endl;
-//            sleep(1);
+            tqdm << "  Training... " << bi << "/" << train_batches.size()
+                 << " Mean loss(epoch): " << err / total
+                 << ", Mean loss(batch): " << l.first / (double) l.second.getBsize()
+                 << ", Accuracy(batch): " << (double) correct / (double) l.second.getBsize();
         }
 
         auto val = loss_accuracy(lenet, loss, test_batches);

@@ -35,7 +35,8 @@ namespace nn {
         static void img2col(const double *original,
                             size_t h, size_t w,
                             size_t kernel1, size_t kernel2,
-                            double *res);
+                            double *res,
+                            size_t lda = 0);
 
         void calculate_params_grad(const Tensor &output);
 
@@ -47,6 +48,9 @@ namespace nn {
         const size_t kernel_;
         std::vector<double> params_;
         std::vector<double> grad_;
+
+        Tensor im2col_buff_;
+        Tensor input_grads_shuffled_;
     };
 }
 
