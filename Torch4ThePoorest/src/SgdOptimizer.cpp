@@ -34,4 +34,5 @@ void SgdOptimizer::step() {
     }
 
     blas_->daxpby((int)grad.size(), m_.data(), -lr_, params.data(), 1.);
+    std::fill(grad.begin(), grad.end(), 0.);
 }

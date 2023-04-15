@@ -8,6 +8,7 @@
 #include "CpuBlas.h"
 #include <cmath>
 #include "Utils.h"
+#include "WeightInitializers.h"
 
 using namespace std;
 using namespace nn;

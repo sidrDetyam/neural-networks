@@ -7,21 +7,30 @@
 
 #include "Tensor.h"
 #include <vector>
+#include <boost/serialization/nvp.hpp>
 
 namespace nn {
 
     class ILayer {
     public:
-
         virtual Tensor forward(Tensor &&input) = 0;
 
         virtual Tensor backward(const Tensor &output) = 0;
 
-        virtual std::vector<double> &getParametersGradient() = 0;
+        virtual std::vector<double> &getParametersGradient();
 
-        virtual std::vector<double> &getParameters() = 0;
+        virtual std::vector<double> &getParameters();
 
         virtual ~ILayer() = default;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version) {
+            ar & BOOST_SERIALIZATION_NVP(params_);
+        }
+
+    protected:
+        std::vector<double> params_;
+        std::vector<double> grad_;
     };
 }
 

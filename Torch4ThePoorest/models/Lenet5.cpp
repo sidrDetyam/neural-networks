@@ -18,6 +18,9 @@
 #include "Dropout.h"
 #include "Tanh.h"
 #include "Tqdm.h"
+#include "WeightInitializers.h"
+
+using namespace nn;
 
 nn::Linear *linearLayerCreator(const size_t input,
                                const size_t output) {
@@ -45,35 +48,22 @@ nn::Sequential lenet5_model() {
     layers.emplace_back(new nn::Reshaper({784}, {1, 28, 28}));
 
     layers.emplace_back(conv2DCreator(1, 6, 5)); // 1,28,28 -> 6,24,24
-
-    //layers.emplace_back(new nn::DropoutLayer(0.3));
-    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
     layers.emplace_back(new nn::Tanh());
-
     layers.emplace_back(new nn::AvgPolling(2, 2, 6)); //6,24,24 -> 6,12,12
 
     layers.emplace_back(conv2DCreator(6, 16, 5)); //6,12,12 -> 16, 8, 8
-
-    //layers.emplace_back(new nn::DropoutLayer(0.3));
-
-    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
     layers.emplace_back(new nn::Tanh());
     layers.emplace_back(new nn::AvgPolling(2, 2, 16)); //16,8,8 -> 16,4,4
-    layers.emplace_back(conv2DCreator(16, 120, 4)); //120,1,1
 
-    layers.emplace_back(new nn::Reshaper({120, 1, 1}, {120}));
+    //layers.emplace_back(conv2DCreator(16, 120, 4)); //120,1,1
 
+    layers.emplace_back(new nn::Reshaper({16, 4, 4}, {256}));
+
+    layers.emplace_back(linearLayerCreator(256, 120));
+    layers.emplace_back(new nn::Tanh());
     layers.emplace_back(linearLayerCreator(120, 84));
-    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
-    //layers.emplace_back(new nn::DropoutLayer(0.5));
     layers.emplace_back(new nn::Tanh());
-
     layers.emplace_back(linearLayerCreator(84, 10));
-    //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
-    //layers.emplace_back(new nn::DropoutLayer(0.5));
-    layers.emplace_back(new nn::Tanh());
-
-    layers.emplace_back(linearLayerCreator(10, 10));
 
     nn::SgdOptimizerCreator sgd_creator(0.9, 0.01, std::make_shared<CpuBlas>());
     nn::Sequential model(std::move(layers), std::make_unique<nn::SgdOptimizerCreator>(std::move(sgd_creator)));

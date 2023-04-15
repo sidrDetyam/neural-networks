@@ -61,14 +61,6 @@ Tensor AvgPolling::backward(const Tensor &output) {
     return grad_input;
 }
 
-std::vector<double> &AvgPolling::getParametersGradient() {
-    return empty_;
-}
-
-std::vector<double> &AvgPolling::getParameters() {
-    return empty_;
-}
-
 AvgPolling::AvgPolling(size_t k1, size_t k2, size_t channels) :
         k1_(k1), k2_(k2), channels_(channels) {
 

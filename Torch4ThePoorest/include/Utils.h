@@ -19,12 +19,6 @@ do{\
     } \
 }while(0)
 
-void random_vector_gauss(std::vector<double> &v, double mean, double dev);
-
-[[maybe_unused]] std::vector<double> random_vector_gauss(size_t n, double mean, double dev);
-
-[[maybe_unused]] std::vector<double> xavier_init(size_t n);
-
 [[maybe_unused]] bool is_same_vectors(const std::vector<double> &a, const std::vector<double> &b, double eps);
 
 bool is_same_cnt(const std::vector<size_t> &a, const std::vector<size_t> &b);

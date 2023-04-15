@@ -16,19 +16,14 @@ namespace nn{
     public:
         [[maybe_unused]] explicit DropoutLayer(double dropoutProbability);
 
-        std::vector<double> &getParameters() override;
-
         Tensor forward(Tensor &&input) override;
 
         Tensor backward(const Tensor &output) override;
-
-        std::vector<double> &getParametersGradient() override;
 
     private:
         double m_dropoutProbability;
         Tensor m_input;
         std::vector<bool> m_mask;
-        std::vector<double> m_emptyGradient;
         std::mt19937 m_rng;
     };
 }

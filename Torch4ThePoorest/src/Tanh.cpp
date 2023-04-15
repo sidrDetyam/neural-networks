@@ -29,11 +29,3 @@ Tensor Tanh::backward(const Tensor &grad_output) {
 
     return grad_input;
 }
-
-std::vector<double> &Tanh::getParametersGradient() {
-    return empty_;
-}
-
-std::vector<double> &Tanh::getParameters() {
-    return empty_;
-}

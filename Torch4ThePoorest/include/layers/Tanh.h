@@ -15,13 +15,8 @@ namespace nn{
 
         Tensor backward(const Tensor& grad_output) override;
 
-        std::vector<double>& getParametersGradient() override;
-
-        std::vector<double>& getParameters() override;
-
     private:
         Tensor input_;
-        std::vector<double> empty_;
     };
 }
 

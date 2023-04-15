@@ -34,9 +34,11 @@ private:
 template<class T>
 Tqdm &operator<<(Tqdm &os, T t){
     std::stringstream ss;
-    std::cout << t;
+    ss.setf(std::ios::fixed);
+    ss.precision(2);
     ss << t;
     os.len_ += (int)ss.str().size();
+    std::cout << ss.str();
     std::flush(std::cout);
     return os;
 }

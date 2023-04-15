@@ -29,6 +29,8 @@ int Tqdm::next(){
 
 void Tqdm::print_promnt(){
     stringstream ss("");
+    ss.setf(std::ios::fixed);
+    ss.precision(2);
 
     for(int i=0; i<len_; ++i){
         cout << "\010 \010";

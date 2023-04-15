@@ -19,13 +19,8 @@ namespace nn {
         Tensor forward(Tensor &&input) override;
 
         Tensor backward(const Tensor &output) override;
-
-        std::vector<double> &getParametersGradient() override;
-
-        std::vector<double> &getParameters() override;
-
+        
     private:
-        std::vector<double> empty_;
         Tensor input_;
         const size_t k1_;
         const size_t k2_;

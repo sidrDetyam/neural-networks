@@ -23,10 +23,6 @@ namespace nn {
 
         Tensor backward(const Tensor &output) override;
 
-        std::vector<double> &getParametersGradient() override;
-
-        std::vector<double> &getParameters() override;
-
     private:
         double *getBPart();
 
@@ -35,9 +31,6 @@ namespace nn {
         std::unique_ptr<IBlas> blas_;
         const size_t input_size_;
         const size_t output_size_;
-
-        std::vector<double> parameters_;
-        std::vector<double> grad_;
 
         Tensor input_;
     };

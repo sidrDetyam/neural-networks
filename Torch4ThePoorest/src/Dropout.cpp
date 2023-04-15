@@ -26,14 +26,6 @@ Tensor nn::DropoutLayer::backward(const Tensor &output) {
     return gradient;
 }
 
-std::vector<double> &nn::DropoutLayer::getParametersGradient() {
-    return m_emptyGradient;
-}
-
-std::vector<double> &nn::DropoutLayer::getParameters() {
-    return m_emptyGradient;
-}
-
 [[maybe_unused]] DropoutLayer::DropoutLayer(double dropoutProbability): m_dropoutProbability(dropoutProbability) {
 
 }

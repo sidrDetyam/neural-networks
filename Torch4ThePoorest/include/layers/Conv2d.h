@@ -24,10 +24,6 @@ namespace nn {
 
         Tensor backward(const Tensor &output) override;
 
-        std::vector<double> &getParametersGradient() override;
-
-        std::vector<double> &getParameters() override;
-
         static void add_padding(const double* source, double* dest, size_t h, size_t w, size_t l, size_t t, size_t r, size_t b);
 
     private:
@@ -51,8 +47,6 @@ namespace nn {
         const size_t input_channels_;
         const size_t output_channels_;
         const size_t kernel_;
-        std::vector<double> params_;
-        std::vector<double> grad_;
         bool bias_;
 
         Tensor im2col_buff_;

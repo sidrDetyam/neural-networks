@@ -19,13 +19,8 @@ namespace nn {
 
         Tensor backward(const Tensor &output) override;
 
-        std::vector<double> &getParametersGradient() override;
-
-        std::vector<double> &getParameters() override;
-
     private:
         Tensor mask_;
-        std::vector<double> fiction_grad_;
         std::unique_ptr<IBlas> blas_;
     };
 }

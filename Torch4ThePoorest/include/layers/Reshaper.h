@@ -17,14 +17,9 @@ namespace nn{
 
         Tensor backward(const Tensor &output) override;
 
-        std::vector<double> &getParametersGradient() override;
-
-        std::vector<double> &getParameters() override;
-
     private:
         const tshape_t is_;
         const tshape_t os_;
-        std::vector<double> empty_;
     };
 
 }

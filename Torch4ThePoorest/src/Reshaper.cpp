@@ -32,14 +32,6 @@ nn::Tensor nn::Reshaper::backward(const Tensor &output) {
     return input;
 }
 
-std::vector<double> &nn::Reshaper::getParametersGradient() {
-    return empty_;
-}
-
-std::vector<double> &nn::Reshaper::getParameters() {
-    return empty_;
-}
-
 nn::Reshaper::Reshaper(nn::tshape_t is, nn::tshape_t os): is_(std::move(is)), os_(std::move(os)) {
     ASSERT_RE(is_same_cnt(is_, os_));
 }

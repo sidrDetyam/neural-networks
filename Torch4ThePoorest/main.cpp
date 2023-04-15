@@ -9,89 +9,76 @@
 #include "Utils.h"
 #include <sstream>
 #include <unistd.h>
+#include <ISerializable.h>
 
 using namespace std;
 using namespace nn;
 
-class Tqdm{
-public:
-
-    explicit Tqdm(int wide): wide_(wide){}
-
-    int start(int last){
-        last_ = last;
-        len_ = 0;
-        curr_ = 0;
-        print_promnt();
-        return curr_;
+template<class Iterator>
+void foo(Iterator& it){
+    for(int i=0; i<5; ++i){
+        double val = *it;
+        cout << val << endl;
+        ++it;
     }
-
-    int next(){
-        ++curr_;
-        print_promnt();
-        if(is_end()){
-            cout << "\n";
-        }
-        return curr_;
-    }
-
-    [[nodiscard]] bool is_end() const{
-        return curr_ == last_;
-    }
-
-    void print_promnt(){
-        stringstream ss("");
-
-        for(int i=0; i<len_; ++i){
-            cout << "\010 \010";
-        }
-
-        ss << '[';
-
-        const int p = std::ceil(wide_ * 10. * curr_ / last_);
-        for(int i=0; i<p; ++i){
-            ss << '#';
-        }
-        for(int i=0; i<wide_ * 10 - p; ++i){
-            ss << ' ';
-        }
-
-        ss << "] ";
-        ss << 100. * curr_ / last_ << "%";
-
-        len_ = (int)ss.str().size();
-        cout << ss.str();
-        std::flush(cout);
-    }
-
-    template<class T>
-    friend Tqdm &operator<<(Tqdm &os, T t);
-
-private:
-    int wide_;
-    int last_ = 0;
-    int curr_ = 0;
-    int len_ = 0;
-};
-
-template<class T>
-Tqdm &operator<<(Tqdm &os, T t){
-    std::stringstream ss;
-    cout << t;
-    ss << t;
-    os.len_ += (int)ss.str().size();
-    std::flush(cout);
-    return os;
 }
 
 
-int main() {
 
-    Tqdm tqdm (5);
-    for(int i = tqdm.start(100); !tqdm.is_end(); i = tqdm.next()){
-        tqdm << " bruh" << " " << i;
-        sleep(1);
+#include <fstream>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+
+class MyClass {
+public:
+    int x;
+    double y;
+    std::string name;
+
+    vector<double> bruh = {1, 2, 3, 4, 5};
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & x;
+        ar & y;
+        ar & name;
+        ar & BOOST_SERIALIZATION_NVP(bruh);
     }
+
+    //BOOST_SERIALIZATION_SPLIT_MEMBER();
+};
+
+int main() {
+//    // создаем объект класса
+    MyClass obj;
+    obj.x = 10;
+    obj.y = 3.14;
+    obj.name = "My Object";
+//
+//    // сериализуем объект в файл
+    string s = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/ser";
+
+//    std::ofstream ofs(s);
+//    boost::archive::text_oarchive oa(ofs);
+//    oa << obj;
+
+    obj.name = "Bruh_obk";
+//    oa << obj;
+
+//    return 0;
+
+    // десериализуем объект из файла
+    MyClass obj2;
+    std::ifstream ifs(s);
+    boost::archive::text_iarchive ia(ifs);
+    ia >> obj2;
+    ia >> obj2;
+
+    // проверяем, что объекты идентичны
+    assert(obj.x == obj2.x);
+    assert(obj.y == obj2.y);
+    assert(obj.name == obj2.name);
 
     return 0;
 }

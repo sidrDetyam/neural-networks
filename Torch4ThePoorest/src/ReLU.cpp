@@ -36,14 +36,6 @@ Tensor ReLU::backward(const Tensor &output) {
     return input;
 }
 
-std::vector<double> &ReLU::getParametersGradient() {
-    return fiction_grad_;
-}
-
-std::vector<double> &ReLU::getParameters() {
-    return fiction_grad_;
-}
-
 ReLU::ReLU(std::unique_ptr<IBlas> &&blas): blas_(std::move(blas)) {
 
 }

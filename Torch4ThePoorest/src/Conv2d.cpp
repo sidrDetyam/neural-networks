@@ -121,6 +121,7 @@ void Conv2d::calculate_params_grad(const Tensor &output) {
     std::copy(kernels_grad.data().begin(), kernels_grad.data().end(), grad_.begin());
 
     if(bias_) {
+        std::fill_n(&get_bias_part_grad(), output_channels_, 0.);
         std::vector<size_t> coord(2);
         for (size_t b = 0; b < os[0]; ++b) {
             for (size_t c_out = 0; c_out < output_channels_; ++c_out) {
@@ -190,14 +191,6 @@ nn::Tensor nn::Conv2d::backward(const nn::Tensor &output) {
     }
 
     return std::move(input_copy_);
-}
-
-std::vector<double> &nn::Conv2d::getParametersGradient() {
-    return grad_;
-}
-
-std::vector<double> &nn::Conv2d::getParameters() {
-    return params_;
 }
 
 Conv2d::Conv2d(const size_t input_channels,

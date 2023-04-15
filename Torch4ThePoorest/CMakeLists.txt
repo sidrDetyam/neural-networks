@@ -26,6 +26,10 @@ include_directories(${BLAS_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS  "-O3")
 
+set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
+find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
+include_directories(${Boost_INCLUDE_DIRS})
+
 add_executable(Torch4ThePoorest
         ${sources}
         ${headers} ${headers_i} ${headers_l}
@@ -33,5 +37,5 @@ add_executable(Torch4ThePoorest
         #main.cpp
         #models/Mushroom.cpp
         models/Lenet5.cpp
-        include/CsvDataLoader.h src/CsvDataLoader.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp include/layers/Conv2d.h src/Conv2d.cpp include/Tqdm.h src/Tqdm.cpp)
-target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov)
+        include/CsvDataLoader.h src/CsvDataLoader.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp include/layers/Conv2d.h src/Conv2d.cpp include/Tqdm.h src/Tqdm.cpp include/interfaces/ISerializable.h src/ILayer.cpp include/WeightInitializers.h src/WeightInitializers.cpp)
+target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})
