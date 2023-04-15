@@ -8,13 +8,11 @@
 #include <string>
 #include <vector>
 #include "csv.hpp"
-#include "Tensor.h"
+#include "IDataLoader.h"
 
 namespace nn{
 
-    using batch_t = std::pair<Tensor, Tensor>;
-
-    class CsvDataLoader{
+    class CsvDataLoader: public IDataLoader{
     public:
         explicit CsvDataLoader(int batch_size,
                                bool last_incomplete,
@@ -22,11 +20,11 @@ namespace nn{
                                size_t feature_size,
                                std::vector<size_t> targets);
 
-        batch_t next_batch();
+        batch_t next_batch() override;
 
-        bool has_next();
+        bool has_next() override;
 
-        std::vector<batch_t> read_all();
+        std::vector<batch_t> read_all() override;
 
     private:
         csv::CSVReader reader_;

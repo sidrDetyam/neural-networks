@@ -23,6 +23,8 @@ nn::CsvDataLoader::CsvDataLoader(const int batch_size,
 
 nn::batch_t nn::CsvDataLoader::next_batch() {
 
+    ASSERT_RE(has_next());
+
     std::vector<double> features;
     std::vector<double> targets;
 
