@@ -6,11 +6,15 @@ set(CMAKE_CXX_STANDARD 23)
 include_directories(include)
 include_directories(include/layers)
 include_directories(include/interfaces)
+include_directories(include/classification)
+include_directories(include/data)
 
 file(GLOB sources src/*.cpp)
 file(GLOB headers include/*.h)
 file(GLOB headers_i include/interfaces/*.h)
 file(GLOB headers_l include/layers/*.h)
+file(GLOB headers_d include/data/*.h)
+file(GLOB headers_c include/classification/*.h)
 file(GLOB tests tests/*.cpp)
 
 
@@ -32,10 +36,12 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(Torch4ThePoorest
         ${sources}
-        ${headers} ${headers_i} ${headers_l}
+        ${headers} ${headers_i} ${headers_l} ${headers_d} ${headers_c}
         ${tests}
         #main.cpp
         #models/Mushroom.cpp
-        models/Lenet5.cpp
-        include/CsvDataLoader.h src/CsvDataLoader.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp include/layers/Conv2d.h src/Conv2d.cpp include/Tqdm.h src/Tqdm.cpp include/interfaces/ISerializable.h src/ILayer.cpp include/WeightInitializers.h src/WeightInitializers.cpp include/interfaces/IDataLoader.h include/Classification.h src/Classification.cpp include/CachingDataLoader.h src/CachingDataLoader.cpp include/TransformDataLoaderDecorator.h src/TransformDataLoaderDecorator.cpp)
+        #models/lenet/Lenet5_train.cpp
+        models/lenet/Lenet5.cpp
+        models/lenet/Lenet5_test.cpp
+        )
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})

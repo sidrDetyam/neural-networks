@@ -20,6 +20,7 @@ std::vector<nn::batch_t> nn::CachingDataLoader::read_all() {
     std::vector<nn::batch_t> rest;
     rest.resize(data_.size() - pos_);
     std::copy_n(data_.cbegin(), data_.size() - pos_, rest.begin());
+    pos_ = data_.size();
 
     return rest;
 }
@@ -49,4 +50,11 @@ size_t nn::CachingDataLoader::size() const {
 
 nn::CachingDataLoader::CachingDataLoader(nn::IDataLoader &&dataLoader): CachingDataLoader(dataLoader) {
 
+}
+
+[[maybe_unused]] nn::CachingDataLoader::CachingDataLoader(std::vector<batch_t> data) {
+    data_ = std::move(data);
+    pos_ = 0;
+    std::random_device rd;
+    generator_ = std::mt19937(rd());
 }

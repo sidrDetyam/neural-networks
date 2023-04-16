@@ -23,10 +23,18 @@ namespace nn {
 
         void step();
 
+        friend std::ofstream &operator<<(std::ofstream &fout, nn::Sequential &model);
+
+        friend std::ifstream &operator>>(std::ifstream &fin, nn::Sequential &model);
+
     private:
-        std::vector<std::unique_ptr<ILayer>> layers_;
         std::vector<std::unique_ptr<IOptimizer>> optimizers_;
+        std::vector<std::unique_ptr<ILayer>> layers_;
     };
+
+    std::ofstream &operator<<(std::ofstream &fout, nn::Sequential &model);
+
+    std::ifstream &operator>>(std::ifstream &fin, nn::Sequential &model);
 }
 
 #endif //MLP_MODEL_H

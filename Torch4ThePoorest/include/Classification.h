@@ -11,10 +11,13 @@
 
 namespace nn{
 
+    std::vector<int> to_one_hot(const nn::Tensor &tensor);
+
     std::pair<double, Tensor> classification_test(Sequential& model,
                                                   int cnt_of_classes,
                                                   IDataLoader& data_loader,
-                                                  const IClassificationLostFunction& loss);
+                                                  const IClassificationLostFunction& loss,
+                                                  bool show_progress=false);
 
     double accuracy(const Tensor& table);
 }

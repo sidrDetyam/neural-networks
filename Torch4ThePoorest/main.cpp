@@ -59,9 +59,9 @@ int main() {
 //    // сериализуем объект в файл
     string s = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/ser";
 
-//    std::ofstream ofs(s);
-//    boost::archive::text_oarchive oa(ofs);
-//    oa << obj;
+    std::ofstream ofs(s);
+    boost::archive::text_oarchive oa(ofs);
+    oa << obj;
 
     obj.name = "Bruh_obk";
 //    oa << obj;

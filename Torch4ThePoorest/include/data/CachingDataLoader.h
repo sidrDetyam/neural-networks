@@ -16,6 +16,8 @@ namespace nn {
 
         [[maybe_unused]] explicit CachingDataLoader(IDataLoader&& dataLoader);
 
+        [[maybe_unused]] [[maybe_unused]] explicit CachingDataLoader(std::vector<batch_t> data);
+
         batch_t next_batch() override;
 
         bool has_next() override;
