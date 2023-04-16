@@ -14,6 +14,8 @@ namespace nn {
     public:
         [[maybe_unused]] explicit CachingDataLoader(IDataLoader& dataLoader);
 
+        [[maybe_unused]] explicit CachingDataLoader(IDataLoader&& dataLoader);
+
         batch_t next_batch() override;
 
         bool has_next() override;

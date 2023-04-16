@@ -37,5 +37,5 @@ add_executable(Torch4ThePoorest
         #main.cpp
         #models/Mushroom.cpp
         models/Lenet5.cpp
-        include/CsvDataLoader.h src/CsvDataLoader.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp include/layers/Conv2d.h src/Conv2d.cpp include/Tqdm.h src/Tqdm.cpp include/interfaces/ISerializable.h src/ILayer.cpp include/WeightInitializers.h src/WeightInitializers.cpp include/interfaces/IDataLoader.h include/ClassificationTrainer.h src/ClassificationTrainer.cpp include/CachingDataLoader.h src/CachingDataLoader.cpp)
+        include/CsvDataLoader.h src/CsvDataLoader.cpp include/layers/Reshaper.h src/Reshaper.cpp include/layers/Dropout.h src/Dropout.cpp include/layers/Tanh.h src/Tanh.cpp include/layers/Conv2d.h src/Conv2d.cpp include/Tqdm.h src/Tqdm.cpp include/interfaces/ISerializable.h src/ILayer.cpp include/WeightInitializers.h src/WeightInitializers.cpp include/interfaces/IDataLoader.h include/Classification.h src/Classification.cpp include/CachingDataLoader.h src/CachingDataLoader.cpp include/TransformDataLoaderDecorator.h src/TransformDataLoaderDecorator.cpp)
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})

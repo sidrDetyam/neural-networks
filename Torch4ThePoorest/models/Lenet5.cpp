@@ -9,8 +9,6 @@
 #include "CsvDataLoader.h"
 #include "Sequential.h"
 #include "Linear.h"
-#include "Utils.h"
-#include "ReLU.h"
 #include "AvgPolling.h"
 #include "Reshaper.h"
 #include "SgdOptimizerCreator.h"
@@ -19,6 +17,9 @@
 #include "Tanh.h"
 #include "Tqdm.h"
 #include "WeightInitializers.h"
+#include "TransformDataLoaderDecorator.h"
+#include "CachingDataLoader.h"
+#include "Classification.h"
 
 namespace {
 
@@ -74,15 +75,15 @@ namespace {
         layers.emplace_back(linearLayerCreator(784, 129));
         layers.emplace_back(new nn::Tanh());
         //layers.emplace_back(new nn::ReLU(CpuBlas::of()));
-        layers.emplace_back(new nn::DropoutLayer(0.3));
+//        layers.emplace_back(new nn::DropoutLayer(0.3));
         layers.emplace_back(linearLayerCreator(129, 84));
 //    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
         layers.emplace_back(new nn::Tanh());
-        layers.emplace_back(new nn::DropoutLayer(0.3));
+//        layers.emplace_back(new nn::DropoutLayer(0.3));
         layers.emplace_back(linearLayerCreator(84, 30));
 //    layers.emplace_back(new nn::ReLU(CpuBlas::of()));
         layers.emplace_back(new nn::Tanh());
-        layers.emplace_back(new nn::DropoutLayer(0.3));
+//        layers.emplace_back(new nn::DropoutLayer(0.3));
         layers.emplace_back(linearLayerCreator(30, 10));
 
         nn::SgdOptimizerCreator sgd_creator(0.9, 0.01, std::make_shared<CpuBlas>());
@@ -90,85 +91,49 @@ namespace {
 
         return model;
     }
-
-    std::pair<double, double>
-    loss_accuracy(nn::Sequential &model, nn::IClassificationLostFunction &loss, const std::vector<nn::batch_t> &test) {
-        double err = 0;
-        int correct = 0;
-        int total = 0;
-
-        int bi = 0;
-        for (const auto &batch: test) {
-            nn::Tensor b = batch.first;
-            total += (int) b.getBsize();
-            auto out = model.forward(std::move(b));
-
-            std::vector<int> one_hot;
-            for (auto i: batch.second.data()) {
-                one_hot.push_back((int) i);
-            }
-
-            auto l = loss.apply(out, one_hot);
-
-            for (size_t i = 0; i < out.getBsize(); ++i) {
-                long cl = std::max_element(out[i], out[i + 1]) - out[i];
-                correct += cl == one_hot[i];
-            }
-
-            err += l.first;
-            cout << "testing " << bi << "/" << test.size() << endl;
-            bi++;
-        }
-
-        return {err / total, (double) correct / total};
-    }
-
 }
 
 int main() {
+    using namespace nn;
+    using namespace std;
+
     nn::CsvDataLoader loader_train(130, true,
                                    "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_train.csv",
                                    785, {0});
 
-    nn::CsvDataLoader loader_test(128, true,
+    nn::CsvDataLoader loader_test(130, true,
                                   "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_test.csv",
                                   785, {0});
 
-    std::vector<nn::batch_t> train_batches = loader_train.read_all();
-    std::vector<nn::batch_t> test_batches = loader_test.read_all();
     nn::Sequential lenet = lenet5_model();
     //nn::Sequential lenet = l_model();
 
-    for (auto &b: train_batches) {
-        for (auto &i: b.first.data()) {
-            i /= 255.;
-        }
-    }
 
-    for (auto &b: test_batches) {
+    auto normalization = [](batch_t &b){
         for (auto &i: b.first.data()) {
             i /= 255.;
         }
-    }
+    };
+
+    CachingDataLoader train(TransformDataLoaderDecorator(loader_train, normalization));
+    CachingDataLoader test(TransformDataLoaderDecorator(loader_test, normalization));
 
     cout << "Loaded\n\n";
 
     nn::CrossEntropyLoss loss;
 
     for (int e = 0; e < 1000; ++e) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::shuffle(train_batches.begin(), train_batches.end(), gen);
+        train.shuffle();
 
         double err = 0;
         int total = 0;
 
-        cout << endl;
+        cout << "Epoch " << e+1 << endl;
 
         Tqdm tqdm(3);
-        for (int bi = tqdm.start((int)train_batches.size()); !tqdm.is_end();) {
+        for (int bi = tqdm.start((int)train.size()); !tqdm.is_end();) {
             int correct = 0;
-            const auto &batch = train_batches[bi];
+            const auto batch = train.next_batch();
 
             nn::Tensor b = batch.first;
             auto out = lenet.forward(std::move(b));
@@ -189,14 +154,16 @@ int main() {
             }
 
             bi = tqdm.next();
-            tqdm << "  Training... " << bi << "/" << train_batches.size()
+            tqdm << "  Training... " << bi << "/" << train.size()
                  << " Mean loss(epoch): " << err / total
                  << ", Mean loss(batch): " << l.first / (double) l.second.getBsize()
                  << ", Accuracy(batch): " << (double) correct / (double) l.second.getBsize();
         }
 
-        auto val = loss_accuracy(lenet, loss, test_batches);
-        cout << e << " " << err / total << " " << val.first << " " << val.second << endl;
+        test.reset();
+        cout << endl;
+        auto test_result = classification_test(lenet, 10, test, loss);
+        cout << "  Testing result: " << err / total << " " << test_result.first << " " << accuracy(test_result.second) << endl;
         sleep(5);
     }
 }

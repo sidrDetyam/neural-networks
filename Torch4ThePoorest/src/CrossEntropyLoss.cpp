@@ -7,7 +7,7 @@
 
 using namespace nn;
 
-std::pair<double, Tensor> CrossEntropyLoss::apply(const Tensor &batch, const std::vector<int> &one_hot) {
+std::pair<double, Tensor> CrossEntropyLoss::apply(const Tensor &batch, const std::vector<int> &one_hot) const {
 
     ASSERT_RE(one_hot.size() == batch.getBsize());
     Tensor softMaxBatch = softMax(batch);

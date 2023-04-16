@@ -18,7 +18,7 @@ bool nn::CachingDataLoader::has_next() {
 
 std::vector<nn::batch_t> nn::CachingDataLoader::read_all() {
     std::vector<nn::batch_t> rest;
-    rest.reserve(data_.size() - pos_);
+    rest.resize(data_.size() - pos_);
     std::copy_n(data_.cbegin(), data_.size() - pos_, rest.begin());
 
     return rest;
@@ -45,4 +45,8 @@ size_t nn::CachingDataLoader::size() const {
 
 [[maybe_unused]] void nn::CachingDataLoader::reset() {
     pos_ = 0;
+}
+
+nn::CachingDataLoader::CachingDataLoader(nn::IDataLoader &&dataLoader): CachingDataLoader(dataLoader) {
+
 }

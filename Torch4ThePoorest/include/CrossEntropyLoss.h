@@ -11,7 +11,8 @@ namespace nn {
 
     class CrossEntropyLoss : public IClassificationLostFunction {
     public:
-        std::pair<double, Tensor> apply(const Tensor &batch, const std::vector<int> &one_hot) override;
+        [[nodiscard]] std::pair<double, Tensor> apply(const Tensor &batch,
+                                                      const std::vector<int> &one_hot) const override;
 
         static Tensor softMax(const Tensor &batch);
     };
