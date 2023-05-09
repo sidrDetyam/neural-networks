@@ -17,8 +17,8 @@ int main(){
     const string test_path = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_test.csv";
     const string model_dump_path = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/lenet5_model";
 
-    //auto model = l_model();
-    auto model = lenet5_model();
+    auto model = l_model();
+    //auto model = lenet5_model();
     {
         ifstream fin(model_dump_path);
         fin >> model;

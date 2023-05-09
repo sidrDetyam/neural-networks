@@ -30,7 +30,7 @@ int main() {
     string train_path = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_train.csv";
     string test_path = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/mnist_test.csv";
     string model_dump_path = "/media/sidr/6C3ED7833ED7452C/bruh/PycharmProjects/neural-networks/Torch4ThePoorest/data/lenet5_model";
-    const int epochs = 1;
+    const int epochs = 10;
 
     nn::CsvDataLoader loader_train(130, true,
                                    train_path,
@@ -40,8 +40,8 @@ int main() {
                                   test_path,
                                   785, {0});
 
-    nn::Sequential lenet = lenet5_model();
-    //nn::Sequential lenet = l_model();
+    //nn::Sequential lenet = lenet5_model();
+    nn::Sequential lenet = l_model();
 
 
     auto normalization = [](batch_t &b){

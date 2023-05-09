@@ -40,8 +40,8 @@ add_executable(Torch4ThePoorest
         ${tests}
         #main.cpp
         #models/Mushroom.cpp
-        #models/lenet/Lenet5_train.cpp
+        models/lenet/Lenet5_train.cpp
         models/lenet/Lenet5.cpp
-        models/lenet/Lenet5_test.cpp
+        #models/lenet/Lenet5_test.cpp
         )
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})
