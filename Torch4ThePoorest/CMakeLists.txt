@@ -45,5 +45,7 @@ add_executable(Torch4ThePoorest
         #models/lenet/Lenet5_test.cpp
         models/lab3/lab3.h
         models/lab3/lab3.cpp
-        include/MAELoss.h src/MAELoss.cpp)
+        models/lab3/lab3_test.cpp
+        #models/lab3/lab3_train.cpp
+        )
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})
