@@ -28,7 +28,7 @@ include_directories(lib/csv-parser/include)
 find_package(BLAS REQUIRED)
 include_directories(${BLAS_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS  "-O0")
+set(CMAKE_CXX_FLAGS  "-O3")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
@@ -45,5 +45,5 @@ add_executable(Torch4ThePoorest
         #models/lenet/Lenet5_test.cpp
         models/lab3/lab3.h
         models/lab3/lab3.cpp
-        )
+        include/MAELoss.h src/MAELoss.cpp)
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})
