@@ -4,7 +4,8 @@
 #include "RnnCell.h"
 #include "Utils.h"
 
-nn::RnnCell::RnnCell(const size_t input_size, const size_t hidden_size,
+nn::RnnCell::RnnCell(const size_t input_size,
+                     const size_t hidden_size,
                      std::unique_ptr<IActivation> &&activation,
                      std::function<IBlas*()> &&blas_factory):
                      input_size_(input_size),
@@ -63,4 +64,8 @@ nn::Tensor &nn::RnnCell::get_input_grad() {
 
 nn::Tensor &nn::RnnCell::get_hidden_grad() {
     return hidden_grad_;
+}
+
+nn::Tensor &nn::RnnCell::get_output() {
+    return output_;
 }

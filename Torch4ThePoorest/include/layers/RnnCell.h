@@ -29,6 +29,8 @@ namespace nn {
 
         Tensor& get_hidden_grad();
 
+        Tensor& get_output();
+
     private:
         const size_t input_size_;
         const size_t hidden_size_;
