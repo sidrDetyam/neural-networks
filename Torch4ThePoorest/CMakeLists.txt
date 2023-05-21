@@ -43,5 +43,5 @@ add_executable(Torch4ThePoorest
         models/lenet/Lenet5_train.cpp
         models/lenet/Lenet5.cpp
         #models/lenet/Lenet5_test.cpp
-        )
+        include/interfaces/IActivation.h include/layers/RnnCell.h src/RnnCell.cpp)
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})

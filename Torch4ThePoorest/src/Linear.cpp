@@ -31,6 +31,16 @@ Linear::Linear(const size_t input_size,
     std::copy(bias.begin(), bias.end(), delimiter);
 }
 
+Linear::Linear(const size_t input_size,
+               const size_t output_size,
+               std::unique_ptr<IBlas> &&blas):
+               Linear(input_size, output_size,
+                      std::vector<double>(input_size*output_size),
+                      std::vector<double>(output_size),
+                      std::move(blas)) {
+
+}
+
 Tensor Linear::forward(Tensor &&input) {
 
     ASSERT_RE(input.getFeatureSize() == input_size_);

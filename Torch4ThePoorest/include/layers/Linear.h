@@ -19,6 +19,10 @@ namespace nn {
                         std::vector<double> bias,
                         std::unique_ptr<IBlas> &&blas);
 
+        explicit Linear(size_t input_size,
+                        size_t output_size,
+                        std::unique_ptr<IBlas> &&blas);
+
         Tensor forward(Tensor &&input) override;
 
         Tensor backward(const Tensor &output) override;
