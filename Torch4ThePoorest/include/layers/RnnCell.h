@@ -7,6 +7,7 @@
 
 #include "IActivation.h"
 #include "IBlas.h"
+#include "Linear.h"
 
 namespace nn {
 
@@ -15,23 +16,28 @@ namespace nn {
         explicit RnnCell(size_t input_size,
                          size_t hidden_size,
                          std::unique_ptr<IActivation> &&activation,
-                         std::unique_ptr<IBlas> &&blas);
+                         std::function<IBlas*()> &&blas_factory);
 
         void forward(Tensor &&input_tensor,
                      Tensor &&hidden_tensor,
-                     );
+                     const double* params);
 
-        void backward(const Tensor &output);
+        void backward(const Tensor &output,
+                      double* grad);
+
+        Tensor& get_input_grad();
+
+        Tensor& get_hidden_grad();
 
     private:
         const size_t input_size_;
-        const size_t output_size_;
-        const size_t cnt_layers_;
-        const size_t sequence_length_;
-        std::function<IActivation * ()> activation_factory_;
-        std::function<IBlas * ()> blas_factory_;
-        std::vector <std::pair<Linear, std::unique_ptr < IActivation>>>
-        cells_;
+        const size_t hidden_size_;
+        std::unique_ptr<IActivation> &&activation_;
+        Linear dense_;
+        std::function<IBlas*()> &&blas_factory_;
+        Tensor output_;
+        Tensor input_grad_;
+        Tensor hidden_grad_;
     };
 }
 
