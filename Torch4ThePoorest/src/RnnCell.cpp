@@ -6,19 +6,19 @@
 
 nn::RnnCell::RnnCell(const size_t input_size,
                      const size_t hidden_size,
-                     std::unique_ptr<IActivation> &&activation,
-                     std::function<IBlas*()> &&blas_factory):
+                     std::unique_ptr<ILayer> activation,
+                     std::function<IBlas*()> blas_factory):
                      input_size_(input_size),
                      hidden_size_(hidden_size),
                      activation_(std::move(activation)),
                      dense_(input_size + hidden_size, hidden_size, std::unique_ptr<IBlas>(blas_factory())),
                      blas_factory_(std::move(blas_factory)){
     ASSERT_RE(input_size_ > 0 && hidden_size_ > 0 && activation_);
+//    std::cout << "constr " << activation_.get() << std::endl;
 }
 
 void nn::RnnCell::forward(nn::Tensor &&input_tensor, nn::Tensor &&hidden_tensor,
                           const double * const params) {
-
     const auto& its = input_tensor.get_shape();
 
     ASSERT_RE(its.size() == 2 && its[1] == input_size_);
@@ -32,8 +32,8 @@ void nn::RnnCell::forward(nn::Tensor &&input_tensor, nn::Tensor &&hidden_tensor,
 
     auto& dense_parameters = dense_.getParameters();
     std::memcpy(dense_parameters.data(), params, dense_parameters.size() * sizeof(double));
-    output_ = dense_.forward(std::move(input));
-    output_ = activation_->forward(std::move(output_));
+    Tensor output_dense = dense_.forward(std::move(input));
+    output_ = activation_->forward(std::move(output_dense));
 }
 
 void nn::RnnCell::backward(const nn::Tensor &output_grad, double * const grad_ptr) {

@@ -15,8 +15,8 @@ namespace nn {
     public:
         explicit RnnCell(size_t input_size,
                          size_t hidden_size,
-                         std::unique_ptr<IActivation> &&activation,
-                         std::function<IBlas*()> &&blas_factory);
+                         std::unique_ptr<ILayer> activation,
+                         std::function<IBlas*()> blas_factory);
 
         void forward(Tensor &&input_tensor,
                      Tensor &&hidden_tensor,
@@ -34,9 +34,9 @@ namespace nn {
     private:
         const size_t input_size_;
         const size_t hidden_size_;
-        std::unique_ptr<IActivation> &&activation_;
+        std::unique_ptr<ILayer> activation_;
         Linear dense_;
-        std::function<IBlas*()> &&blas_factory_;
+        std::function<IBlas*()> blas_factory_;
         Tensor output_;
         Tensor input_grad_;
         Tensor hidden_grad_;

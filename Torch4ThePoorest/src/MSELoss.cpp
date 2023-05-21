@@ -18,9 +18,9 @@ std::pair<double, nn::Tensor> nn::MSELoss::apply(const nn::Tensor &model_output,
         double loss_local = 0;
         for(size_t i=0; i<shape[1]; ++i){
             const double diff = model_output({b, i}) - correct_output({b, i});
-            loss_local += -2./diff * diff;
+            loss_local += 1./double(shape[1]) * diff * diff;
 
-            grad({b, i}) = -2./(double)shape[1] * diff;
+            grad({b, i}) = 2./(double)shape[1] * diff;
         }
         loss += loss_local;
     }

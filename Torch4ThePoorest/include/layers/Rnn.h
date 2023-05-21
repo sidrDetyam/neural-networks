@@ -13,13 +13,13 @@
 
 namespace nn {
 
-    class Rnn: ILayer {
+    class Rnn: public ILayer {
     public:
         explicit Rnn(size_t input_size,
                      size_t output_size,
                      size_t cnt_layers,
                      size_t sequence_length,
-                     std::function<IActivation*()> activation_factory,
+                     std::function<ILayer*()> activation_factory,
                      std::function<IBlas*()> blas_factory);
 
         Tensor forward(Tensor &&input) override;
@@ -41,7 +41,7 @@ namespace nn {
         const size_t output_size_;
         const size_t cnt_layers_;
         const size_t sequence_length_;
-        std::function<IActivation*()> activation_factory_;
+        std::function<ILayer*()> activation_factory_;
         std::function<IBlas*()> blas_factory_;
         std::vector<std::vector<RnnCell>> cells_;
         std::unique_ptr<IBlas> blas_;

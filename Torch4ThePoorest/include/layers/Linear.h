@@ -17,11 +17,11 @@ namespace nn {
                         size_t output_size,
                         std::vector<double> weights,
                         std::vector<double> bias,
-                        std::unique_ptr<IBlas> &&blas);
+                        std::unique_ptr<IBlas> blas);
 
         explicit Linear(size_t input_size,
                         size_t output_size,
-                        std::unique_ptr<IBlas> &&blas);
+                        std::unique_ptr<IBlas> blas);
 
         Tensor forward(Tensor &&input) override;
 

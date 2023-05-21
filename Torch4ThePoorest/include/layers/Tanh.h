@@ -5,7 +5,7 @@
 #ifndef TORCH4THEPOOREST_TANH_H
 #define TORCH4THEPOOREST_TANH_H
 
-#include "ILayer.h"
+#include "IActivation.h"
 
 namespace nn{
 

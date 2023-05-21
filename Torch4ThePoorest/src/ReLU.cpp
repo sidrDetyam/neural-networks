@@ -36,6 +36,6 @@ Tensor ReLU::backward(const Tensor &output) {
     return input;
 }
 
-ReLU::ReLU(std::unique_ptr<IBlas> &&blas): blas_(std::move(blas)) {
+ReLU::ReLU(std::unique_ptr<IBlas> blas): blas_(std::move(blas)) {
 
 }

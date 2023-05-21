@@ -16,7 +16,7 @@ file(GLOB headers_l include/layers/*.h)
 file(GLOB headers_d include/data/*.h)
 file(GLOB headers_c include/classification/*.h)
 file(GLOB tests tests/*.cpp)
-
+#file(GLOB model models/lab3)
 
 #libs
 add_subdirectory(lib/googletest)
@@ -28,7 +28,7 @@ include_directories(lib/csv-parser/include)
 find_package(BLAS REQUIRED)
 include_directories(${BLAS_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS  "-O3")
+set(CMAKE_CXX_FLAGS  "-O0")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 find_package(Boost REQUIRED COMPONENTS system filesystem serialization)
@@ -40,8 +40,10 @@ add_executable(Torch4ThePoorest
         ${tests}
         #main.cpp
         #models/Mushroom.cpp
-        models/lenet/Lenet5_train.cpp
-        models/lenet/Lenet5.cpp
+        #models/lenet/Lenet5_train.cpp
+        #models/lenet/Lenet5.cpp
         #models/lenet/Lenet5_test.cpp
-        include/interfaces/IActivation.h include/layers/RnnCell.h src/RnnCell.cpp include/interfaces/IRegressionLossFunction.h include/MSELoss.h src/MSELoss.cpp)
+        models/lab3/lab3.h
+        models/lab3/lab3.cpp
+        )
 target_link_libraries(Torch4ThePoorest ${BLAS_LIBRARIES} gtest gtest_main csv gcov ${Boost_LIBRARIES})

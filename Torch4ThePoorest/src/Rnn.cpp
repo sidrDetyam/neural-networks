@@ -1,5 +1,6 @@
 #include "Rnn.h"
 #include "Utils.h"
+#include "Tanh.h"
 
 //
 // Created by sidr on 20.05.23.
@@ -30,7 +31,7 @@ Tensor nn::Rnn::forward(Tensor &&input) {
 Tensor nn::Rnn::backward(const Tensor &output) {
 
     const auto& os = output.get_shape();
-    ASSERT_RE(os.size() == 2 && os[2]==output_size_);
+    ASSERT_RE(os.size() == 2 && os[1]==output_size_);
 
     for(int l=(int)cnt_layers_-1; l>=0; --l){
         for(int t=(int)sequence_length_-1; t>=0; --t){
@@ -51,39 +52,45 @@ Tensor nn::Rnn::backward(const Tensor &output) {
         }
     }
 
-    return {};
+    ///TODO
+    return Tensor({os[0], sequence_length_, input_size_});
 }
 
 Rnn::Rnn(const size_t input_size,
          const size_t output_size,
          const size_t cnt_layers,
          const size_t sequence_length,
-         std::function<IActivation *()> activation_factory,
+         std::function<ILayer *()> activation_factory,
          std::function<IBlas *()> blas_factory) :
         input_size_(input_size),
         output_size_(output_size),
         cnt_layers_(cnt_layers),
         sequence_length_(sequence_length),
         activation_factory_(std::move(activation_factory)),
-        blas_factory_(std::move(blas_factory)),
-        cells_(cnt_layers){
+        blas_factory_(std::move(blas_factory)){
 
     ASSERT_RE(input_size > 0 && output_size > 0 && cnt_layers_ > 0 && sequence_length_ > 0);
 
-    params_.assign((input_size_ + output_size_) * output_size_ +
-                           (output_size_+output_size_) * output_size_ * (cnt_layers_-1), 0);
+    params_.assign((input_size_ + output_size_) * output_size_ + //fisrt rnn-layer
+                           (output_size_+output_size_) * output_size_ * (cnt_layers_-1)
+                           + output_size_*cnt_layers_, 0); //bias
     grad_.assign(params_.size(), 0);
 
     for (size_t i = 0; i < cnt_layers_; ++i) {
         const size_t cell_input_size = i==0? input_size_ : output_size_;
+        cells_.emplace_back();
 
         for(size_t j=0; j < sequence_length_; ++j) {
-            auto activation = std::unique_ptr<IActivation>(activation_factory_());
+            auto activation = std::unique_ptr<ILayer>(activation_factory_());
             std::function<IBlas *()> blas_factory_cell = [this]() {
                 return blas_factory_();
             };
+
+            //auto act2 = std::move(activation);
             cells_[i].emplace_back(cell_input_size, output_size_,
                                 std::move(activation), std::move(blas_factory_cell));
+
+//            std::cout << activation.get() << std::endl;
         }
     }
 
@@ -95,7 +102,7 @@ size_t Rnn::get_layers_element_ind(const size_t layer_ind) const {
         return 0;
     }
 
-    return (input_size_+output_size_)*output_size_ + (layer_ind-1) * (output_size_+output_size_)*output_size_;
+    return (input_size_+output_size_+1)*output_size_ + (layer_ind-1) * (output_size_+output_size_+1)*output_size_;
 }
 
 double *Rnn::get_layer_param(const size_t layer_ind) {

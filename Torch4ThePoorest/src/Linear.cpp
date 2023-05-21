@@ -14,7 +14,7 @@ Linear::Linear(const size_t input_size,
                const size_t output_size,
                std::vector<double> weights,
                std::vector<double> bias,
-               std::unique_ptr<IBlas> &&blas) :
+               std::unique_ptr<IBlas> blas) :
         input_size_(input_size),
         output_size_(output_size),
         blas_(std::move(blas)) {
@@ -33,7 +33,7 @@ Linear::Linear(const size_t input_size,
 
 Linear::Linear(const size_t input_size,
                const size_t output_size,
-               std::unique_ptr<IBlas> &&blas):
+               std::unique_ptr<IBlas> blas):
                Linear(input_size, output_size,
                       std::vector<double>(input_size*output_size),
                       std::vector<double>(output_size),

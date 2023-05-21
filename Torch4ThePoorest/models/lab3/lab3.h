@@ -1,0 +1,8 @@
+//
+// Created by sidr on 21.05.23.
+//
+
+#ifndef TORCH4THEPOOREST_LAB3_H
+#define TORCH4THEPOOREST_LAB3_H
+
+#endif //TORCH4THEPOOREST_LAB3_H
